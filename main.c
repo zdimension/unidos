@@ -9,8 +9,7 @@
 
 #include <stddef.h> // offsetof()
 
-#include "int20.h"
-#include "int21.h"
+#include "ints/ints.h"
 
 #define DOS_ADDR 0x100
 
@@ -99,9 +98,15 @@ void hook_intr(uc_engine *uc, uint32_t intno, void *user_data)
     uc_reg_read(uc, UC_X86_REG_AH, &r_ah);
 
     // only handle DOS interrupt
+
     switch(intno) {
         default:
             printf(">>> 0x%x: interrupt: %x, function %x\n", r_ip, intno, r_ah);
+            break;
+        case 0x05:
+            break;
+        case 0x10:
+            int10(uc);
             break;
         case 0x21:
             int21(uc);
@@ -157,6 +162,7 @@ int main(int argc, char **argv)
     }
 
     // initialize internal settings
+    int10_init();
     int21_init();
 
     // setup PSP
