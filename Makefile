@@ -6,8 +6,8 @@ LDFLAGS += $(shell pkg-config --libs glib-2.0) -lpthread -lm -lunicorn
 
 TARGET = unidos
 
-SOURCES  := $(wildcard *.c)
-INCLUDES := $(wildcard *.h)
+SOURCES  := $(wildcard *.c) $(wildcard */*.c)
+INCLUDES := $(wildcard *.h) $(wildcard */*.h)
 OBJECTS  := $(SOURCES:.c=.o)
 
 all: $(TARGET)
