@@ -1,6 +1,6 @@
 #include <curses.h>
 
-#include "int21.h"
+#include "int10.h"
 
 void int10_init(void)
 {

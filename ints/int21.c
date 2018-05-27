@@ -8,6 +8,7 @@
 #include <time.h>
 #include <sys/stat.h>
 
+#include "../util/uc.h"
 #include "int21.h"
 #include "../global.h"
 #include "../util/dospath.h"
@@ -95,20 +96,7 @@ static char *read_str_till_char(uc_engine *uc, uint64_t addr, char terminator)
 }
 
 
-// set C flag in EFLAGS register
-static void set_flag_C(uc_engine *uc, int flag)
-{
-    uint32_t r_eflags;
 
-    uc_reg_read(uc, UC_X86_REG_EFLAGS, &r_eflags);
-
-    if (flag)
-        r_eflags &= 0xfffffffe; // eflags_C = 0
-    else
-        r_eflags |= 1; // eflags_C = 1
-
-    uc_reg_write(uc, UC_X86_REG_EFLAGS, &r_eflags);
-}
 
 
 // initialize FD table
@@ -185,7 +173,7 @@ void int21(uc_engine *uc)
     uc_reg_read(uc, UC_X86_REG_AH, &r_ah);
     uc_reg_read(uc, UC_X86_REG_IP, &r_ip);
 
-    //printf(">>> 0x%x: interrupt: %x, AH = %02x\n", r_ip, 0x21, r_ah);
+    printf(">>> 0x%x: interrupt: %x, AH = %02x\n", r_ip, 0x21, r_ah);
 
     switch(r_ah) {
         default:
@@ -207,6 +195,15 @@ void int21(uc_engine *uc)
 
                 break;
             }
+
+        case 0x08: // character input
+        {
+            uint8_t r_al = getchar();
+
+            uc_reg_write(uc, UC_X86_REG_AL, &r_al);
+
+            break;
+        }
 
         case 0x09: // write to screen
             {

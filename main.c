@@ -108,6 +108,9 @@ void hook_intr(uc_engine *uc, uint32_t intno, void *user_data)
         case 0x10:
             int10(uc);
             break;
+        case 0x15:
+            int15(uc);
+            break;
         case 0x21:
             int21(uc);
             break;
@@ -155,7 +158,7 @@ int main(int argc, char **argv)
     }
 
     // map 64KB in
-    if (uc_mem_map (uc, 0, 64 * 1024, UC_PROT_ALL)) {
+    if (uc_mem_map (uc, 0, 64 * 1024, UC_PROT_ALL) || uc_mem_map(uc, 0xC0000, 0x10000, UC_PROT_READ)) {
         printf("Failed to write emulation code to memory, quit!\n");
         uc_close(uc);
         return 0;
@@ -163,6 +166,7 @@ int main(int argc, char **argv)
 
     // initialize internal settings
     int10_init();
+    int15_init(uc);
     int21_init();
 
     // setup PSP
