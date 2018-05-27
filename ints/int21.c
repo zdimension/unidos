@@ -18,9 +18,6 @@ static uint16_t dta;    // disk transfer area address
 static int fdtable[FD_TABLE_SIZE];
 static char buf[64 * 1024];
 
-uint8_t cur_drive = 2;
-struct dospath cur_path[26];
-
 
 // read a string of @size bytes
 static char *read_str(uc_engine *uc, uint64_t addr, int size)
