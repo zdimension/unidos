@@ -6,12 +6,57 @@
 #include <unistd.h>
 #include <string.h>
 #include <time.h>
+#include <sys/stat.h>
 
 #include "int21.h"
 #include "../global.h"
 #include "../util/dospath.h"
 
 #define FD_TABLE_SIZE 256
+
+enum IOCTL_FUNC
+{
+    IOCTL_GET_DEVICE_INFORMATION = 0x0,
+    IOCTL_SET_DEVICE_INFORMATION = 0x1,
+    IOCTL_READ_FROM_CHARACTER_DEVICE = 0x2,
+    IOCTL_WRITE_TO_CHARACTER_DEVICE = 0x3,
+    IOCTL_READ_FROM_BLOCK_DEVICE = 0x4,
+    IOCTL_WRITE_TO_BLOCK_DEVICE = 0x5,
+    IOCTL_GET_INPUT_STATUS = 0x6,
+    IOCTL_GET_OUTPUT_STATUS = 0x7,
+    IOCTL_DEVICE_REMOVABLE_QUERY = 0x8,
+    IOCTL_DEVICE_LOCAL_OR_REMOTE_QUERY = 0x9,
+    IOCTL_HANDLE_LOCAL_OR_REMOTE_QUERY = 0xA,
+    IOCTL_SET_SHARING_RETRY_COUNT = 0xB,
+    IOCTL_GENERIC_IO_FOR_HANDLES = 0xC,
+    IOCTL_GENERIC_IO_FOR_BLOCK_DEVICES = 0xD,
+    IOCTL_GET_LOGICAL_DRIVE = 0xE,
+    IOCTL_SET_LOGICAL_DRIVE = 0xF
+};
+
+enum IOCTL_INFO
+{
+    IOCTL_DRIVE_LETTER = 0x3F,
+    IOCTL_NOT_WRITTEN = 1 << 6,
+
+    IOCTL_IS_STDIN = 1 << 0,
+    IOCTL_IS_STDOUT = 1 << 1,
+    IOCTL_IS_NUL = 1 << 2,
+    IOCTL_IS_CLOCK = 1 << 3,
+    IOCTL_USES_INT_29 = 1 << 4,
+    IOCTL_BINARY_MODE = 1 << 5,
+    IOCTL_NON_EOF = 1 << 6,
+    IOCTL_IS_CHAR = 1 << 7,
+    IOCTL_RESERVED_1 = 0x700, // 8 to 10
+    IOCTL_NOT_REMOVABLE = 1 << 11,
+    IOCTL_NETWORK_DEVICE = 1 << 12,
+    IOCTL_RESERVED_2 = 1 << 13,
+    IOCTL_SUPPORTS_IOCTL = 1 << 14,
+    IOCTL_RESERVED_3 = 1 << 15,
+
+    IOCTL_NON_UPDATE_DATE = 1 << 14,
+    IOCTL_REMOTE = 1 << 5
+};
 
 static uint8_t str_buf[1024];   // buffer for reading string from memory
 static uint16_t dta;    // disk transfer area address
@@ -140,7 +185,7 @@ void int21(uc_engine *uc)
     uc_reg_read(uc, UC_X86_REG_AH, &r_ah);
     uc_reg_read(uc, UC_X86_REG_IP, &r_ip);
 
-    printf(">>> 0x%x: interrupt: %x, AH = %02x\n", r_ip, 0x21, r_ah);
+    //printf(">>> 0x%x: interrupt: %x, AH = %02x\n", r_ip, 0x21, r_ah);
 
     switch(r_ah) {
         default:
@@ -528,6 +573,63 @@ void int21(uc_engine *uc)
 
                 break;
             }
+
+        case 0x44: // I/O control for devices
+        {
+            uint8_t r_al, r_bl;
+            uint16_t r_ax, r_bx, r_cx;
+
+            uc_reg_read(uc, UC_X86_REG_AL, &r_al);
+            uc_reg_read(uc, UC_X86_REG_BL, &r_bl);
+            uc_reg_read(uc, UC_X86_REG_BX, &r_bx);
+            uc_reg_read(uc, UC_X86_REG_CX, &r_cx);
+
+            int fd = fdtable_get(r_bx);
+            if (fd < 0) {
+                set_flag_C(uc, 1);
+                r_ax = EBADF;
+                uc_reg_write(uc, UC_X86_REG_AX, &r_ax);
+                break;
+            }
+
+            FILE* fp = fdopen(fd, "r");
+
+            printf("\n>>> 0x%x: interrupt: %x, IOCTL (44), func = %02x, fp = %02x, dev = %02d, bs = %02x\n", r_ip, 0x21, r_al, r_bx, r_bl, r_cx);
+
+            switch (r_al)
+            {
+                case IOCTL_GET_DEVICE_INFORMATION:
+                {
+                    uint16_t r_dx = 0;
+                    struct stat stat;
+                    fstat(fd, &stat);
+
+                    if (S_ISCHR(stat.st_mode))
+                    {
+                        if (fd == 0)
+                            r_dx |= IOCTL_IS_STDIN;
+                        else if (fd == 1)
+                            r_dx |= IOCTL_IS_STDOUT;
+
+                        if (!feof(fp))
+                            r_dx |= IOCTL_NON_EOF;
+
+                        r_dx |= IOCTL_IS_CHAR;
+                        r_dx |= IOCTL_SUPPORTS_IOCTL;
+                    }
+                    else if (S_ISBLK(stat.st_mode))
+                    {
+
+                    }
+
+                    r_dx |= IOCTL_NOT_REMOVABLE;
+
+                    break;
+                }
+            }
+
+            break;
+        }
 
         case 0x4c: // exit
             {
