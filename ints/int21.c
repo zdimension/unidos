@@ -187,6 +187,15 @@ void int21(uc_engine *uc)
                 uc_emu_stop(uc);
             }
 
+        case 0x01: // keyboard input without echo
+        {
+            uint8_t r_al = getchar();
+
+            uc_reg_write(uc, UC_X86_REG_AL, &r_al);
+
+            break;
+        }
+
         case 0x02: // character output
             {
                 uint8_t r_dl;
