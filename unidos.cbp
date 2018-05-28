@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="unidos"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\cmake\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/mnt/d/Documents/GitHub/unidos"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/mnt/d/Documents/GitHub/unidos/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -f &quot;/mnt/d/Documents/GitHub/unidos/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/mnt/d/Documents/GitHub/unidos/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/mnt/d/Documents/GitHub/unidos/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/mnt/d/Documents/GitHub/unidos"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/mnt/d/Documents/GitHub/unidos/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -f &quot;/mnt/d/Documents/GitHub/unidos/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/mnt/d/Documents/GitHub/unidos/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/mnt/d/Documents/GitHub/unidos/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="unidos">
+				<Option output="/mnt/d/Documents/GitHub/unidos/unidos" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/mnt/d/Documents/GitHub/unidos"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/mnt/d/Documents/GitHub/unidos/."/>
+					<Add directory="/mnt/d/Documents/GitHub/unidos/ints"/>
+					<Add directory="/mnt/d/Documents/GitHub/unidos/util"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/mnt/d/Documents/GitHub/unidos/Makefile&quot;  VERBOSE=1 unidos"/>
+					<CompileFile command="/usr/bin/make -f &quot;/mnt/d/Documents/GitHub/unidos/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/mnt/d/Documents/GitHub/unidos/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/mnt/d/Documents/GitHub/unidos/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="unidos/fast">
+				<Option output="/mnt/d/Documents/GitHub/unidos/unidos" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/mnt/d/Documents/GitHub/unidos"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/mnt/d/Documents/GitHub/unidos/."/>
+					<Add directory="/mnt/d/Documents/GitHub/unidos/ints"/>
+					<Add directory="/mnt/d/Documents/GitHub/unidos/util"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/mnt/d/Documents/GitHub/unidos/Makefile&quot;  VERBOSE=1 unidos/fast"/>
+					<CompileFile command="/usr/bin/make -f &quot;/mnt/d/Documents/GitHub/unidos/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/mnt/d/Documents/GitHub/unidos/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/mnt/d/Documents/GitHub/unidos/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/mnt/d/Documents/GitHub/unidos"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/mnt/d/Documents/GitHub/unidos/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -f &quot;/mnt/d/Documents/GitHub/unidos/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/mnt/d/Documents/GitHub/unidos/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/mnt/d/Documents/GitHub/unidos/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/mnt/d/Documents/GitHub/unidos/global.c">
+			<Option target="unidos"/>
+		</Unit>
+		<Unit filename="/mnt/d/Documents/GitHub/unidos/global.h">
+			<Option target="unidos"/>
+		</Unit>
+		<Unit filename="/mnt/d/Documents/GitHub/unidos/ints/int10.c">
+			<Option target="unidos"/>
+		</Unit>
+		<Unit filename="/mnt/d/Documents/GitHub/unidos/ints/int10.h">
+			<Option target="unidos"/>
+		</Unit>
+		<Unit filename="/mnt/d/Documents/GitHub/unidos/ints/int15.c">
+			<Option target="unidos"/>
+		</Unit>
+		<Unit filename="/mnt/d/Documents/GitHub/unidos/ints/int15.h">
+			<Option target="unidos"/>
+		</Unit>
+		<Unit filename="/mnt/d/Documents/GitHub/unidos/ints/int20.c">
+			<Option target="unidos"/>
+		</Unit>
+		<Unit filename="/mnt/d/Documents/GitHub/unidos/ints/int20.h">
+			<Option target="unidos"/>
+		</Unit>
+		<Unit filename="/mnt/d/Documents/GitHub/unidos/ints/int21.c">
+			<Option target="unidos"/>
+		</Unit>
+		<Unit filename="/mnt/d/Documents/GitHub/unidos/ints/int21.h">
+			<Option target="unidos"/>
+		</Unit>
+		<Unit filename="/mnt/d/Documents/GitHub/unidos/ints/ints.h">
+			<Option target="unidos"/>
+		</Unit>
+		<Unit filename="/mnt/d/Documents/GitHub/unidos/main.c">
+			<Option target="unidos"/>
+		</Unit>
+		<Unit filename="/mnt/d/Documents/GitHub/unidos/util/dospath.c">
+			<Option target="unidos"/>
+		</Unit>
+		<Unit filename="/mnt/d/Documents/GitHub/unidos/util/dospath.h">
+			<Option target="unidos"/>
+		</Unit>
+		<Unit filename="/mnt/d/Documents/GitHub/unidos/util/uc.c">
+			<Option target="unidos"/>
+		</Unit>
+		<Unit filename="/mnt/d/Documents/GitHub/unidos/util/uc.h">
+			<Option target="unidos"/>
+		</Unit>
+		<Unit filename="/mnt/d/Documents/GitHub/unidos/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/mnt/d/Documents/GitHub/unidos/cmake/FindUnicorn.cmake">
+			<Option virtualFolder="CMake Files\cmake\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

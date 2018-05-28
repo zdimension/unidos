@@ -7,6 +7,8 @@
 #include <string.h>
 #include <time.h>
 #include <sys/stat.h>
+#include <stdio.h>
+#include <unicorn/unicorn.h>
 
 #include "../util/uc.h"
 #include "int21.h"

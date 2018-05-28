@@ -5,3 +5,7 @@ unidos
 .DS_Store
 .idea/
 dos/
+build/
+cmake-build-debug/
+CMakeFiles/
+CMakeCache.txt
