@@ -780,6 +780,15 @@ void int21(uc_engine *uc)
             break;
         }
 
+        case 0x2e: // set/reset verify switch
+        {
+            uint8_t r_al;
+
+            uc_reg_read(uc, UC_X86_REG_AL, &r_al);
+
+            verify_switch = (bool)r_al;
+        }
+
         case 0x47: // get current directory
         {
             uint8_t r_dl;
