@@ -857,5 +857,15 @@ void int21(uc_engine *uc)
             uc_reg_write(uc, UC_X86_REG_AX, &r_ax);
         }
 
+        case 0x50: // set current process ID
+        {
+            uint16_t r_bx;
+
+            uc_reg_read(uc, UC_X86_REG_BX, &r_bx);
+
+            printf("trying to set PSP to %04x\n", r_bx);
+
+            break;
+        }
     }
 }
