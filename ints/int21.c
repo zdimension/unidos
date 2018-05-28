@@ -264,6 +264,16 @@ void int21(uc_engine *uc)
             break;
         }
 
+        case 0x0c: // clear keyboard buffer and invoke keyboard function
+        {
+            uint8_t r_al;
+
+            uc_reg_read(uc, UC_X86_REG_AL, &r_al);
+
+            r_ah = r_al;
+            goto rerun;
+        }
+
         case 0x0e: // select disk
         {
             uint8_t r_dl;
