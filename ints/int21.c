@@ -789,6 +789,15 @@ void int21(uc_engine *uc)
             verify_switch = (bool)r_al;
         }
 
+        case 0x2f: // get disk transfer address
+        {
+            uint16_t r_es = 0x0000;
+            uint16_t r_bx = dta;
+
+            uc_reg_write(uc, UC_X86_REG_ES, &r_es);
+            uc_reg_write(uc, UC_X86_REG_BX, &r_bx);
+        }
+
         case 0x33: // get/set system values (Ctrl+Break, boot drive)
         {
             uint8_t r_al, r_dl;
