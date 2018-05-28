@@ -120,6 +120,8 @@ void hook_intr(uc_engine *uc, uint32_t intno, void *user_data)
     }
 }
 
+uc_engine* uc;
+
 int main(int argc, char **argv)
 {
     uc_engine *uc;
