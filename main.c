@@ -10,6 +10,7 @@
 #include <stddef.h> // offsetof()
 
 #include "ints/ints.h"
+#include "defs.h"
 
 #define DOS_ADDR 0x100
 
@@ -42,6 +43,8 @@ struct PSP {
     char     CommandLine[127];
 };
 #pragma pack(pop)
+
+
 
 
 static void usage(char *prog)
@@ -106,16 +109,16 @@ void hook_intr(uc_engine *uc, uint32_t intno, void *user_data)
         case 0x05:
             break;
         case 0x10:
-            int10(uc);
+            int10();
             break;
         case 0x15:
-            int15(uc);
+            int15();
             break;
         case 0x21:
-            int21(uc);
+            int21();
             break;
         case 0x20:
-            int20(uc);
+            int20();
             break;
     }
 }
@@ -124,7 +127,6 @@ uc_engine* uc;
 
 int main(int argc, char **argv)
 {
-    uc_engine *uc;
     uc_hook trace;
     uc_err err;
     char *fname;
@@ -168,7 +170,7 @@ int main(int argc, char **argv)
 
     // initialize internal settings
     int10_init();
-    int15_init(uc);
+    int15_init();
     int21_init();
 
     // setup PSP

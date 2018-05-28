@@ -7,23 +7,15 @@ set(CMAKE_C_STANDARD 99)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-set(SOURCE_FILES
-        ints/int10.c
-        ints/int10.h
-        ints/int15.c
-        ints/int15.h
-        ints/int20.c
-        ints/int20.h
-        ints/int21.c
-        ints/int21.h
-        ints/ints.h
-        util/dospath.c
-        util/dospath.h
-        util/uc.c
-        util/uc.h
-        global.c
-        global.h
-        main.c)
+file(GLOB SOURCE_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+        *.c
+        *.cpp
+        *.h
+        */*.c
+        */*.cpp
+        */*.h)
+
+string(REGEX REPLACE "CMakeFiles/[^;]+;?" "" SOURCE_FILES "${SOURCE_FILES}")
 
 include_directories(.)
 include_directories(ints)

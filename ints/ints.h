@@ -1,5 +1,5 @@
-#ifndef DOSCORN_INTS_H
-#define DOSCORN_INTS_H
+#ifndef UNIDOS_INTS_H
+#define UNIDOS_INTS_H
 
 #include "int10.h"
 #include "int15.h"

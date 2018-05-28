@@ -1,5 +1,5 @@
-#ifndef DOSCORN_DOSPATH_H
-#define DOSCORN_DOSPATH_H
+#ifndef UNIDOS_DOSPATH_H
+#define UNIDOS_DOSPATH_H
 
 struct dospath
 {

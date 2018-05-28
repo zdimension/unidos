@@ -1,7 +1,8 @@
+#include <global.h>
 #include "uc.h"
 
 // set C flag in EFLAGS register
-void set_flag_C(uc_engine *uc, int flag)
+void set_flag_C(int flag)
 {
     uint32_t r_eflags;
 

@@ -1,5 +1,6 @@
 #include <curses.h>
 #include <unicorn/unicorn.h>
+#include <global.h>
 
 #include "int15.h"
 #include "../util/uc.h"
@@ -80,7 +81,7 @@ struct SDT
     };
 };
 
-void int15_init(uc_engine *uc)
+void int15_init()
 {
     struct SDT sdt = {0};
     sdt.num_bytes = sizeof(sdt) - sizeof(uint16_t);
@@ -94,7 +95,7 @@ void int15_init(uc_engine *uc)
 
 
 // callback for handling interrupt
-void int15(uc_engine *uc) {
+void int15() {
     uint16_t r_ip;
     uint8_t r_ah;
 
@@ -120,7 +121,7 @@ void int15(uc_engine *uc) {
             uc_reg_write(uc, UC_X86_REG_ES, &r_es);
             uc_reg_write(uc, UC_X86_REG_BX, &r_bx);
 
-            set_flag_C(uc, 0);
+            set_flag_C(0);
         }
     }
 }

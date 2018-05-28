@@ -1,4 +1,5 @@
 #include <curses.h>
+#include <global.h>
 
 #include "int10.h"
 
@@ -9,7 +10,7 @@ void int10_init(void)
 
 
 // callback for handling interrupt
-void int10(uc_engine *uc) {
+void int10() {
     uint16_t r_ip;
     uint8_t r_ah;
 
