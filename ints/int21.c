@@ -811,5 +811,29 @@ void int21(uc_engine *uc)
 
             break;
         }
+
+        case 0x48: // allocate memory
+        {
+            uint16_t r_ax = 0, r_bx = 0;
+
+            uc_reg_read(uc, UC_X86_REG_BX, &r_bx);
+
+            uint8_t err = mem_alloc(r_bx * 16, &r_ax);
+
+            if (err)
+            {
+                set_flag_C(1);
+
+                r_ax = err;
+            }
+            else
+            {
+                set_flag_C(0);
+            }
+
+            uc_reg_write(uc, UC_X86_REG_AX, &r_ax);
+            uc_reg_write(uc, UC_X86_REG_BX, &r_bx);
+        }
+
     }
 }
