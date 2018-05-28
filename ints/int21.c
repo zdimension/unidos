@@ -835,5 +835,27 @@ void int21(uc_engine *uc)
             uc_reg_write(uc, UC_X86_REG_BX, &r_bx);
         }
 
+        case 0x49: // free allocated memory
+        {
+            uint16_t r_ax = 0, r_es;
+
+            uc_reg_read(uc, UC_X86_REG_ES, &r_es);
+
+            uint8_t err = mem_free(r_es);
+
+            if (err)
+            {
+                set_flag_C(1);
+
+                r_ax = err;
+            }
+            else
+            {
+                set_flag_C(0);
+            }
+
+            uc_reg_write(uc, UC_X86_REG_AX, &r_ax);
+        }
+
     }
 }
