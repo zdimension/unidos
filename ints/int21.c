@@ -789,6 +789,33 @@ void int21(uc_engine *uc)
             verify_switch = (bool)r_al;
         }
 
+        case 0x33: // get/set system values (Ctrl+Break, boot drive)
+        {
+            uint8_t r_al, r_dl;
+
+            uc_reg_read(uc, UC_X86_REG_AL, &r_al);
+            uc_reg_read(uc, UC_X86_REG_DL, &r_dl);
+
+            switch(r_al)
+            {
+                case 0x02:
+                    ext_ctrl_break_check = (bool)r_dl;
+                case 0x00:
+                    r_dl = (ctrl_break_check || ext_ctrl_break_check) ? 1 : 0;
+                    break;
+
+                case 0x01:
+                    ctrl_break_check = (bool)r_dl;
+                    break;
+
+                case 0x05:
+                    r_dl = 3; // C: always
+                    break;
+            }
+
+            uc_reg_write(uc, UC_X86_REG_DL, &r_dl);
+        }
+
         case 0x47: // get current directory
         {
             uint8_t r_dl;
