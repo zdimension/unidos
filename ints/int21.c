@@ -656,7 +656,7 @@ void int21(uc_engine *uc)
 
         case 0x2a: // get system date
         {
-            time_t t = time(NULL);
+            time_t t = time_fix();
             struct tm tm = *localtime(&t);
 
             uint16_t r_cx = tm.tm_year - 80;
@@ -672,21 +672,91 @@ void int21(uc_engine *uc)
             break;
         }
 
+        case 0x2b: // set system date
+        {
+            time_t t = time_fix();
+            struct tm tm = *localtime(&t);
+
+            uint16_t r_cx;
+            uint8_t r_dh, r_dl;
+
+            uc_reg_read(uc, UC_X86_REG_CX, &r_cx);
+            uc_reg_read(uc, UC_X86_REG_DH, &r_dh);
+            uc_reg_read(uc, UC_X86_REG_DL, &r_dl);
+
+            tm.tm_year = r_cx;
+            tm.tm_mon = r_dh;
+            tm.tm_mday = r_dl;
+
+            time_t n = mktime(&tm);
+
+            uint8_t r_al = 0x00;
+
+            if (n == -1) // invalid date
+            {
+                r_al = 0xFF;
+            }
+            else
+            {
+                time_offset = n - t;
+            }
+
+            uc_reg_write(uc, UC_X86_REG_AL, &r_al);
+
+            break;
+        }
+
         case 0x2c: // get system time
         {
             struct timeval tval;
-            gettimeofday(&tval, NULL);
+            ptime_fix(&tval);
             struct tm tm = *localtime(&tval.tv_sec);
 
             uint8_t r_ch = tm.tm_hour;
             uint8_t r_cl = tm.tm_min;
-            uint8_t r_dh = tval.tv_sec;
+            uint8_t r_dh = tm.tm_sec;
             uint8_t r_dl = tval.tv_usec / 10000;
 
             uc_reg_write(uc, UC_X86_REG_CH, &r_ch);
             uc_reg_write(uc, UC_X86_REG_CL, &r_cl);
             uc_reg_write(uc, UC_X86_REG_DH, &r_dh);
             uc_reg_write(uc, UC_X86_REG_DL, &r_dl);
+
+            break;
+        }
+
+        case 0x2d: // set system time
+        {
+            struct timeval tval;
+            ptime_fix(&tval);
+            struct tm tm = *localtime(&tval.tv_sec);
+            time_t t = mktime(&tm);
+
+            uint8_t r_ch, r_cl, r_dh, r_dl;
+
+            uc_reg_read(uc, UC_X86_REG_CH, &r_ch);
+            uc_reg_read(uc, UC_X86_REG_CL, &r_cl);
+            uc_reg_read(uc, UC_X86_REG_DH, &r_dh);
+            uc_reg_read(uc, UC_X86_REG_DL, &r_dl);
+
+            tm.tm_hour = r_ch;
+            tm.tm_min = r_cl;
+            tm.tm_sec = r_dh;
+
+            time_t n = mktime(&tm);
+
+            uint8_t r_al = 0x00;
+
+            if (n == -1) // invalid date
+            {
+                r_al = 0xFF;
+            }
+            else
+            {
+                time_offset = n - t;
+            }
+
+            uc_reg_write(uc, UC_X86_REG_AL, &r_al);
 
             break;
         }
