@@ -857,6 +857,32 @@ void int21(uc_engine *uc)
             uc_reg_write(uc, UC_X86_REG_AX, &r_ax);
         }
 
+        case 0x4a: // modify allocated memory
+        {
+            uint16_t r_ax = 0, r_bx, r_es;
+
+            uc_reg_read(uc, UC_X86_REG_BX, &r_bx);
+            uc_reg_read(uc, UC_X86_REG_ES, &r_es);
+
+            uint8_t err = mem_realloc(r_bx * 16, r_es);
+
+            if (err)
+            {
+                set_flag_C(1);
+
+                r_ax = err;
+            }
+            else
+            {
+                set_flag_C(0);
+            }
+
+            r_bx = 0;
+
+            uc_reg_write(uc, UC_X86_REG_AX, &r_ax);
+            uc_reg_write(uc, UC_X86_REG_BX, &r_bx);
+        }
+
         case 0x50: // set current process ID
         {
             uint16_t r_bx;
