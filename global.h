@@ -5,7 +5,7 @@
 #include <sys/time.h>
 #include <stdbool.h>
 #include <unicorn/unicorn.h>
-#include "util/dospath.h"
+#include "dospath.h"
 
 extern uc_engine* uc;
 
@@ -16,7 +16,11 @@ extern bool verify_switch;
 extern bool ctrl_break_check;
 extern bool ext_ctrl_break_check;
 
+extern uint16_t current_proc_seg;
+
 const time_t time_fix();
 void ptime_fix(struct timeval* val);
+void global_init();
+void print_uc_err(uc_err err);
 
 #endif
