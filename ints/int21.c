@@ -1019,5 +1019,14 @@ void int21()
 
             break;
         }
+
+        case 0x51: // get current process ID
+        {
+            uint16_t r_bx = current_proc_seg;
+
+            uc_reg_write(uc, UC_X86_REG_BX, &r_bx);
+
+            break;
+        }
     }
 }
