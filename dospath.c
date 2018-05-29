@@ -2,24 +2,31 @@
 #include <string.h>
 
 #include "dospath.h"
-#include "../global.h"
+#include "global.h"
 
 void path_to_string(struct dospath path, char* buf)
 {
     if (path.drive != -1)
     {
         buf[0] = path.drive + 'A';
-        strcat(buf, ":\\");
+        strcat(buf, ":");
     }
 
-    for (int i = 0; i < path.depth; i++)
+    if (path.depth == 0)
     {
-        strcat(buf, path.path[i]);
         strcat(buf, "\\");
+    }
+    else
+    {
+        for (int i = 0; i < path.depth; i++)
+        {
+            strcat(buf, "\\");
+            strcat(buf, path.path[i]);
+        }
     }
 }
 
-void string_to_path(char* str, struct dospath* path)
+void path_parse(char* str, struct dospath* path)
 {
     if (str[1] == ':')
     {

@@ -10,7 +10,7 @@ struct dospath
 
 void path_to_string(struct dospath path, char* buf);
 
-void string_to_path(char* str, struct dospath* path);
+void path_parse(char* str, struct dospath* path);
 
 void path_combine(struct dospath first, struct dospath second, struct dospath* output);
 
