@@ -1015,7 +1015,9 @@ void int21()
 
             uc_reg_read(uc, UC_X86_REG_BX, &r_bx);
 
-            printf("trying to set PSP to %04x\n", r_bx);
+            printf("Setting current PSP to %04x\n", r_bx);
+
+            current_proc_seg = r_bx;
 
             break;
         }
