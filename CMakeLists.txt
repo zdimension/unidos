@@ -26,4 +26,6 @@ link_libraries(${LIBUNICORN_LIBRARY} pthread)
 
 find_package(Unicorn REQUIRED)
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+
 add_executable(unidos ${SOURCE_FILES})
