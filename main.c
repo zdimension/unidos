@@ -16,14 +16,14 @@
 #define DOS_ADDR 0x100
 
 
-static void usage(char *prog)
+static void usage(char* prog)
 {
     printf("UniDOS for DOS emulation. Based on Unicorn engine (www.unicorn-engine.org)\n");
     printf("Syntax: %s <COM>\n", prog);
 }
 
 // callback for handling interrupt
-void hook_intr(uc_engine *uc, uint32_t intno, void *user_data)
+void hook_intr(uc_engine* uc, uint32_t intno, void* user_data)
 {
     uint32_t r_ip;
     uint8_t r_ah;
@@ -55,14 +55,14 @@ void hook_intr(uc_engine *uc, uint32_t intno, void *user_data)
     }
 }
 
-uc_engine *uc;
+uc_engine* uc;
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     uc_hook trace;
     uc_err err;
-    char *fname;
-    FILE *f;
+    char* fname;
+    FILE* f;
     uint8_t fcontent[64 * 1024];    // 64KB for .COM file
     long fsize;
 

@@ -16,20 +16,20 @@ struct FCB_map
 
     int host_fd;
 
-    struct FCB_map *prev;
-    struct FCB_map *next;
-} *FCB_items = NULL;
+    struct FCB_map* prev;
+    struct FCB_map* next;
+} * FCB_items = NULL;
 
-bool fcb_matches(struct FCB *fcb, struct FCB_map *map)
+bool fcb_matches(struct FCB* fcb, struct FCB_map* map)
 {
     return fcb->drive == map->drive
            && !strncmp(fcb->filename, map->filename, 8)
            && !strncmp(fcb->extension, map->extension, 3);
 }
 
-uint8_t fcb_close(struct FCB *fcb)
+uint8_t fcb_close(struct FCB* fcb)
 {
-    for (struct FCB_map *cur = FCB_items; cur; cur = cur->next)
+    for (struct FCB_map* cur = FCB_items; cur; cur = cur->next)
     {
         if (fcb_matches(fcb, cur))
         {
@@ -53,12 +53,12 @@ uint8_t fcb_close(struct FCB *fcb)
     return ERR_FCB_UNAVAILABLE;
 }
 
-uint8_t fcb_open(struct FCB *fcb)
+uint8_t fcb_open(struct FCB* fcb)
 {
     printf("Opening FCB / %d (%c:) / %.8s.%.3s\n", fcb->drive, fix_drive(fcb->drive) + 'A', fcb->filename,
            fcb->extension);
 
-    for (struct FCB_map *cur = FCB_items; cur; cur = cur->next)
+    for (struct FCB_map* cur = FCB_items; cur; cur = cur->next)
     {
         if (fcb_matches(fcb, cur))
         {
@@ -80,7 +80,7 @@ uint8_t fcb_open(struct FCB *fcb)
         return ERR_UNABLE_TO_COMPLETE_FILE_OPERATION;
     }
 
-    struct FCB_map *map = malloc(sizeof(struct FCB_map));
+    struct FCB_map* map = malloc(sizeof(struct FCB_map));
     memset(map, 0, sizeof(struct FCB_map));
 
     map->drive = fcb->drive;
@@ -97,7 +97,7 @@ uint8_t fcb_open(struct FCB *fcb)
         return ERR_SUCCESS;
     }
 
-    struct FCB_map *cur = FCB_items;
+    struct FCB_map* cur = FCB_items;
     while (cur->next)
         cur = cur->next;
 
@@ -107,7 +107,7 @@ uint8_t fcb_open(struct FCB *fcb)
     return ERR_SUCCESS;
 }
 
-void fcb_filename(struct FCB *fcb, char *fname)
+void fcb_filename(struct FCB* fcb, char* fname)
 {
     memset(fname, 0, 15);
     fname[0] = fix_drive(fcb->drive) + 'A';
@@ -118,9 +118,9 @@ void fcb_filename(struct FCB *fcb, char *fname)
     strcat(fname, fcb->extension);
 }
 
-int fcb_get_fd(struct FCB *fcb)
+int fcb_get_fd(struct FCB* fcb)
 {
-    for (struct FCB_map *cur = FCB_items; cur; cur = cur->next)
+    for (struct FCB_map* cur = FCB_items; cur; cur = cur->next)
     {
         if (fcb_matches(fcb, cur))
         {

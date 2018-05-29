@@ -10,13 +10,13 @@ struct mount_point
 {
     uint8_t drive;
     char path[514];
-    struct mount_point *prev;
-    struct mount_point *next;
-} *mount_points = NULL;
+    struct mount_point* prev;
+    struct mount_point* next;
+} * mount_points = NULL;
 
 uint8_t mount_remove(uint8_t drive)
 {
-    for (struct mount_point *cur = mount_points; cur; cur = cur->next)
+    for (struct mount_point* cur = mount_points; cur; cur = cur->next)
     {
         if (cur->drive == drive)
         {
@@ -39,11 +39,11 @@ uint8_t mount_remove(uint8_t drive)
     return ERR_INVALID_DRIVE_SPECIFIED;
 }
 
-uint8_t mount_add(uint8_t drive, char *path)
+uint8_t mount_add(uint8_t drive, char* path)
 {
     printf("Adding mount point %c = %s\n", drive + 'A', path);
 
-    for (struct mount_point *cur = mount_points; cur; cur = cur->next)
+    for (struct mount_point* cur = mount_points; cur; cur = cur->next)
     {
         if (cur->drive == drive)
         {
@@ -52,7 +52,7 @@ uint8_t mount_add(uint8_t drive, char *path)
         }
     }
 
-    struct mount_point *pnt = malloc(sizeof(struct mount_point));
+    struct mount_point* pnt = malloc(sizeof(struct mount_point));
     memset(pnt, 0, sizeof(struct mount_point));
     pnt->drive = drive;
     strcpy(pnt->path, path);
@@ -63,7 +63,7 @@ uint8_t mount_add(uint8_t drive, char *path)
         return ERR_SUCCESS;
     }
 
-    struct mount_point *cur = mount_points;
+    struct mount_point* cur = mount_points;
     while (cur->next)
         cur = cur->next;
 
@@ -73,21 +73,21 @@ uint8_t mount_add(uint8_t drive, char *path)
     return ERR_SUCCESS;
 }
 
-uint8_t mount_str_to_real(char *inp, char *buf)
+uint8_t mount_str_to_real(char* inp, char* buf)
 {
     struct dospath path;
     path_parse(inp, &path);
     return mount_to_real(&path, buf);
 }
 
-uint8_t mount_to_real(struct dospath *path, char *buf)
+uint8_t mount_to_real(struct dospath* path, char* buf)
 {
     struct dospath real;
     path_absolute(*path, &real);
 
-    struct mount_point *good = NULL;
+    struct mount_point* good = NULL;
 
-    for (struct mount_point *cur = mount_points; cur; cur = cur->next)
+    for (struct mount_point* cur = mount_points; cur; cur = cur->next)
     {
         if (cur->drive == real.drive)
         {

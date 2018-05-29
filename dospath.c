@@ -4,7 +4,7 @@
 #include "dospath.h"
 #include "global.h"
 
-void path_to_string(struct dospath path, char *buf)
+void path_to_string(struct dospath path, char* buf)
 {
     if (path.drive != -1)
     {
@@ -26,7 +26,7 @@ void path_to_string(struct dospath path, char *buf)
     }
 }
 
-void path_parse(char *str, struct dospath *path)
+void path_parse(char* str, struct dospath* path)
 {
     if (str[1] == ':')
     {
@@ -36,13 +36,13 @@ void path_parse(char *str, struct dospath *path)
         path->drive = -1;
     }
 
-    char *p = strtok(str + 2, "\\");
+    char* p = strtok(str + 2, "\\");
     path->depth = 0;
     path->path = NULL;
 
     while (p)
     {
-        path->path = realloc(path->path, sizeof(char *) * ++path->depth);
+        path->path = realloc(path->path, sizeof(char*) * ++path->depth);
 
         path->path[path->depth - 1] = p;
 
@@ -50,7 +50,7 @@ void path_parse(char *str, struct dospath *path)
     }
 }
 
-void path_combine(struct dospath first, struct dospath second, struct dospath *output)
+void path_combine(struct dospath first, struct dospath second, struct dospath* output)
 {
     if (second.drive != -1)
     {
@@ -60,12 +60,12 @@ void path_combine(struct dospath first, struct dospath second, struct dospath *o
 
     output->drive = first.drive;
     output->depth = first.depth + second.depth;
-    output->path = (char **) malloc(output->depth * sizeof(char *));
+    output->path = (char**) malloc(output->depth * sizeof(char*));
 
     for (int i = 0; i < first.depth; i++)
     {
         size_t len = strlen(first.path[i]) + 1;
-        output->path[i] = (char *) malloc(len);
+        output->path[i] = (char*) malloc(len);
         memcpy(output->path[i], first.path[i], len);
     }
 
@@ -73,26 +73,26 @@ void path_combine(struct dospath first, struct dospath second, struct dospath *o
     {
         int off = i + first.depth;
         size_t len = strlen(second.path[i]) + 1;
-        output->path[off] = (char *) malloc(len);
+        output->path[off] = (char*) malloc(len);
         memcpy(output->path[off], second.path[i], len);
     }
 }
 
-void path_absolute(struct dospath path, struct dospath *output)
+void path_absolute(struct dospath path, struct dospath* output)
 {
     path_combine(cur_path[cur_drive], path, output);
 }
 
-void path_copy(struct dospath src, struct dospath *dest)
+void path_copy(struct dospath src, struct dospath* dest)
 {
     dest->drive = src.drive;
     dest->depth = src.depth;
-    dest->path = (char **) malloc(dest->depth * sizeof(char *));
+    dest->path = (char**) malloc(dest->depth * sizeof(char*));
 
     for (int i = 0; i < dest->depth; i++)
     {
         size_t len = strlen(src.path[i]) + 1;
-        dest->path[i] = (char *) malloc(len);
+        dest->path[i] = (char*) malloc(len);
         memcpy(dest->path[i], src.path[i], len);
     }
 }

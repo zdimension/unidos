@@ -72,19 +72,19 @@ static char buf[64 * 1024];
 
 
 // read a string of @size bytes
-static char *read_str(uint64_t addr, int size)
+static char* read_str(uint64_t addr, int size)
 {
     // do not read exceed the size of str_buf[]
     size = MIN(size, sizeof(str_buf) - 1);
     uc_mem_read(uc, addr, str_buf, size);
     str_buf[size] = '\0';
 
-    return (char *) str_buf;
+    return (char*) str_buf;
 }
 
 
 // read a string of @size bytes, or until '$' letter.
-static char *read_str_till_char(uint64_t addr, char terminator)
+static char* read_str_till_char(uint64_t addr, char terminator)
 {
     size_t i = 0;
 
@@ -100,7 +100,7 @@ static char *read_str_till_char(uint64_t addr, char terminator)
         i++;
     }
 
-    return (char *) str_buf;
+    return (char*) str_buf;
 }
 
 
@@ -179,7 +179,7 @@ void int21()
         case 0x09: // write to screen
         {
             uint16_t r_dx, r_ds;
-            char *buf;
+            char* buf;
 
             uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
             uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
@@ -197,7 +197,7 @@ void int21()
         {
             uint16_t r_dx, r_ds;
             uint8_t max_buf;
-            char *buf, *str;
+            char* buf, * str;
 
             uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
             uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
@@ -304,7 +304,7 @@ void int21()
 
             uc_mem_read(uc, MK_FP(r_ds, r_dx), &fcb, sizeof(fcb));
 
-            char *fname[15];
+            char* fname[15];
             fcb_filename(&fcb, fname);
 
             char fixed[512];
@@ -338,7 +338,7 @@ void int21()
             int host_fd = fcb_get_fd(&fcb);
 
             size_t size = r_cx * fcb.record_size;
-            void *buf = malloc(size);
+            void* buf = malloc(size);
             memset(buf, 0, size);
             ssize_t num = read(host_fd, buf, size);
 
@@ -418,7 +418,7 @@ void int21()
         case 0x3b: // change current directory
         {
             uint16_t r_dx, r_ds;
-            char *chdir;
+            char* chdir;
 
             uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
             uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
@@ -446,7 +446,7 @@ void int21()
         {
             uint16_t tmp, r_dx, r_ds;
             uint8_t r_al;
-            char *fname;
+            char* fname;
             int hostfd;
 
             uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
@@ -490,7 +490,7 @@ void int21()
         {
             uint16_t tmp, r_dx, r_ds;
             uint8_t r_al;
-            char *fname;
+            char* fname;
             int hostfd;
 
             uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
@@ -603,7 +603,7 @@ void int21()
         case 0x40: // Write to device
         {
             uint16_t r_ax, r_bx, r_cx, r_dx, r_ds;
-            char *buf;
+            char* buf;
             int fd;
             ssize_t count;
 
@@ -646,7 +646,7 @@ void int21()
         case 0x41: // delete a file
         {
             uint16_t r_dx, r_ds, r_ax;
-            char *fname;
+            char* fname;
 
             uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
             uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
@@ -731,7 +731,7 @@ void int21()
                 break;
             }
 
-            FILE *fp = fdopen(fd, "r");
+            FILE* fp = fdopen(fd, "r");
 
             printf("\n>>> 0x%x: interrupt: %x, IOCTL (44), func = %02x, fp = %02x, dev = %02d, bs = %02x\n", r_ip, 0x21,
                    r_al, r_bx, r_bl, r_cx);
@@ -777,7 +777,7 @@ void int21()
             uc_reg_read(uc, UC_X86_REG_AL, &r_al);
 
             uint16_t r_dx, r_ds, r_ax;
-            char *fname;
+            char* fname;
 
             uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
             uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
@@ -1003,7 +1003,7 @@ void int21()
             else
                 r_dl--;
 
-            char *buf = malloc(66);
+            char* buf = malloc(66);
             memset(buf, 0, 66);
             path_to_string(cur_path[r_dl], buf);
 

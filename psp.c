@@ -3,12 +3,12 @@
 #include "global.h"
 #include "psp.h"
 
-void psp_setup(int16_t seg, uint8_t *fcontent, int argc, char **argv)
+void psp_setup(int16_t seg, uint8_t* fcontent, int argc, char** argv)
 {
     uint32_t abs = MK_FP(seg, 0);
     int i, j;
     uint8_t c = 0;
-    struct PSP *PSP = (struct PSP *) (fcontent + abs);
+    struct PSP* PSP = (struct PSP*) (fcontent + abs);
 
     // CPMExit: INT 20h
     PSP->CPMExit[0] = 0xcd;
@@ -57,7 +57,7 @@ uint8_t psp_create(int16_t seg)
 
 uint8_t psp_copy(uint16_t source, uint16_t target)
 {
-    void *buf = malloc(256);
+    void* buf = malloc(256);
 
     uc_mem_read(uc, MK_FP(source, 0), buf, 256);
 

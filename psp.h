@@ -33,7 +33,7 @@ struct PSP
 };
 #pragma pack(pop)
 
-void psp_setup(int16_t seg, uint8_t *fcontent, int argc, char **argv);
+void psp_setup(int16_t seg, uint8_t* fcontent, int argc, char** argv);
 
 uint8_t psp_create(int16_t seg);
 

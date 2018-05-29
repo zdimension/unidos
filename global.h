@@ -7,7 +7,7 @@
 #include <unicorn/unicorn.h>
 #include "dospath.h"
 
-extern uc_engine *uc;
+extern uc_engine* uc;
 
 extern unsigned char cur_drive;
 extern struct dospath cur_path[26];
@@ -20,7 +20,7 @@ extern uint16_t current_proc_seg;
 
 const time_t time_fix();
 
-void ptime_fix(struct timeval *val);
+void ptime_fix(struct timeval* val);
 
 void global_init();
 
