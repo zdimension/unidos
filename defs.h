@@ -7,6 +7,8 @@
 #define MIN(a, b) ((a) < (b)? (a) : (b))
 #define MAX(a, b) ((a) > (b)? (a) : (b))
 
+#define ALIGN(a, b) (((a) + (b)) & ~((b) - 1))
+
 enum DOS_ERROR
 {
     ERR_SUCCESS = 0x00,
