@@ -211,6 +211,15 @@ void int21()
                 break;
             }
 
+        case 0x07: // direct console input
+        {
+            uint8_t r_al = getchar();
+
+            uc_reg_write(uc, UC_X86_REG_AL, &r_al);
+
+            break;
+        }
+
         case 0x08: // character input
         {
             uint8_t r_al = getchar();
