@@ -22,7 +22,6 @@
 #include "dospath.h"
 
 
-
 enum IOCTL_FUNC
 {
     IOCTL_GET_DEVICE_INFORMATION = 0x0,
@@ -80,7 +79,7 @@ static char *read_str(uint64_t addr, int size)
     uc_mem_read(uc, addr, str_buf, size);
     str_buf[size] = '\0';
 
-    return (char *)str_buf;
+    return (char *) str_buf;
 }
 
 
@@ -90,16 +89,18 @@ static char *read_str_till_char(uint64_t addr, char terminator)
     size_t i = 0;
 
     // read a string from memory until '@terminator
-    while(true) {
+    while (true)
+    {
         uc_mem_read(uc, addr + i, str_buf + i, 1);
-        if (str_buf[i] == terminator) {
+        if (str_buf[i] == terminator)
+        {
             str_buf[i] = '\0';
             break;
         }
         i++;
     }
 
-    return (char *)str_buf;
+    return (char *) str_buf;
 }
 
 
@@ -126,15 +127,16 @@ void int21()
 
     rerun:
 
-    switch(r_ah) {
+    switch (r_ah)
+    {
         default:
             printf(">>> 0x%x: interrupt: %x, AH = %02x unimplemented\n", r_ip, 0x21, r_ah);
             break;
 
         case 0x00: //terminate process
-            {
-                uc_emu_stop(uc);
-            }
+        {
+            uc_emu_stop(uc);
+        }
 
         case 0x01: // keyboard input without echo
         {
@@ -146,15 +148,15 @@ void int21()
         }
 
         case 0x02: // character output
-            {
-                uint8_t r_dl;
+        {
+            uint8_t r_dl;
 
-                uc_reg_read(uc, UC_X86_REG_DL, &r_dl);
+            uc_reg_read(uc, UC_X86_REG_DL, &r_dl);
 
-                printf("%c", r_dl);
+            printf("%c", r_dl);
 
-                break;
-            }
+            break;
+        }
 
         case 0x07: // direct console input
         {
@@ -175,43 +177,43 @@ void int21()
         }
 
         case 0x09: // write to screen
-            {
-                uint16_t r_dx, r_ds;
-                char *buf;
+        {
+            uint16_t r_dx, r_ds;
+            char *buf;
 
-                uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
-                uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
-                //printf(">>> 0x%x: interrupt: %x, AH: %02x, DX = %02x, DS = %02x, addr = %x\n\n",
-                //        r_ip, 0x21, r_ah, r_dx, r_ds, MK_FP(r_ds, r_dx));
+            uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
+            uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
+            //printf(">>> 0x%x: interrupt: %x, AH: %02x, DX = %02x, DS = %02x, addr = %x\n\n",
+            //        r_ip, 0x21, r_ah, r_dx, r_ds, MK_FP(r_ds, r_dx));
 
-                // read until '$'
-                buf = read_str_till_char(MK_FP(r_ds, r_dx), '$');
-                printf("%s", buf);
+            // read until '$'
+            buf = read_str_till_char(MK_FP(r_ds, r_dx), '$');
+            printf("%s", buf);
 
-                break;
-            }
+            break;
+        }
 
         case 0x0a: // buffered keyboard input
-            {
-                uint16_t r_dx, r_ds;
-                uint8_t max_buf;
-                char *buf, *str;   
+        {
+            uint16_t r_dx, r_ds;
+            uint8_t max_buf;
+            char *buf, *str;
 
-                uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
-                uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
-                uc_mem_read(uc, MK_FP(r_ds, r_dx), &max_buf, 1);
+            uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
+            uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
+            uc_mem_read(uc, MK_FP(r_ds, r_dx), &max_buf, 1);
 
-                fscanf(stdin, "%ms", &buf);
-                str = strndup(buf, max_buf -1);
-                str[max_buf] = '$';
+            fscanf(stdin, "%ms", &buf);
+            str = strndup(buf, max_buf - 1);
+            str[max_buf] = '$';
 
-                uc_mem_write(uc, MK_FP(r_ds, r_dx) + 2, str, strlen(str));
+            uc_mem_write(uc, MK_FP(r_ds, r_dx) + 2, str, strlen(str));
 
-                free(buf);
-                free(str);
+            free(buf);
+            free(str);
 
-                break;
-            }
+            break;
+        }
 
         case 0x0b: // check standard input status
         {
@@ -302,7 +304,7 @@ void int21()
 
             uc_mem_read(uc, MK_FP(r_ds, r_dx), &fcb, sizeof(fcb));
 
-            char* fname[15];
+            char *fname[15];
             fcb_filename(&fcb, fname);
 
             char fixed[512];
@@ -310,7 +312,8 @@ void int21()
 
             uint8_t r_al = 0x00;
 
-            if (unlink(fixed)) {
+            if (unlink(fixed))
+            {
                 r_al = 0xFF;
             }
 
@@ -335,7 +338,7 @@ void int21()
             int host_fd = fcb_get_fd(&fcb);
 
             size_t size = r_cx * fcb.record_size;
-            void* buf = malloc(size);
+            void *buf = malloc(size);
             memset(buf, 0, size);
             ssize_t num = read(host_fd, buf, size);
 
@@ -364,15 +367,15 @@ void int21()
         }
 
         case 0x1a: // set disk transfer area address
-            {
-                uint16_t r_dx;
+        {
+            uint16_t r_dx;
 
-                uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
+            uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
 
-                dta = r_dx;
+            dta = r_dx;
 
-                break;
-            }
+            break;
+        }
 
         case 0x25: // set interrupt vector
         {
@@ -402,15 +405,15 @@ void int21()
         }
 
         case 0x30: // return DOS version 7.0
-            {
-                uint8_t r_al = 6;   // major
-                uint8_t r_ah = 22;  // minor
+        {
+            uint8_t r_al = 6;   // major
+            uint8_t r_ah = 22;  // minor
 
-                uc_reg_write(uc, UC_X86_REG_AL, &r_al);
-                uc_reg_write(uc, UC_X86_REG_AH, &r_ah);
+            uc_reg_write(uc, UC_X86_REG_AL, &r_al);
+            uc_reg_write(uc, UC_X86_REG_AH, &r_ah);
 
-                break;
-            }
+            break;
+        }
 
         case 0x3b: // change current directory
         {
@@ -429,8 +432,7 @@ void int21()
             if (res.drive != -1)
             {
                 cur_drive = res.drive;
-            }
-            else
+            } else
             {
                 res.drive = cur_drive;
             }
@@ -441,252 +443,274 @@ void int21()
         }
 
         case 0x3c: // create a new file (or truncate existing file)
+        {
+            uint16_t tmp, r_dx, r_ds;
+            uint8_t r_al;
+            char *fname;
+            int hostfd;
+
+            uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
+            uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
+            uc_reg_read(uc, UC_X86_REG_AL, &r_al);
+
+            // read until '$'
+            fname = read_str_till_char(MK_FP(r_ds, r_dx), '$');
+            //printf(">>> Trying to create a new file '%s'\n", fname);
+
+            char fixed[512];
+            mount_str_to_real(fname, fixed);
+            // TODO ignore attributes
+            hostfd = open(fixed, O_CREAT | O_TRUNC | O_RDWR);
+            if (hostfd < 0)
+            {   // failed to open
+                set_flag_C(1);
+                tmp = errno;    // FIXME
+            } else
             {
-                uint16_t tmp, r_dx, r_ds;
-                uint8_t r_al;
-                char *fname;
-                int hostfd;
-
-                uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
-                uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
-                uc_reg_read(uc, UC_X86_REG_AL, &r_al);
-
-                // read until '$'
-                fname = read_str_till_char(MK_FP(r_ds, r_dx), '$');
-                //printf(">>> Trying to create a new file '%s'\n", fname);
-
-                char fixed[512];
-                mount_str_to_real(fname, fixed);
-                // TODO ignore attributes
-                hostfd = open(fixed, O_CREAT | O_TRUNC | O_RDWR);
-                if (hostfd < 0) {   // failed to open
+                int dosfd = fdtable_set(hostfd);
+                if (dosfd < 0)
+                {
+                    // system table is full
+                    close(hostfd);
                     set_flag_C(1);
-                    tmp = errno;    // FIXME
-                } else {
-                    int dosfd = fdtable_set(hostfd);
-                    if (dosfd < 0) {
-                        // system table is full
-                        close(hostfd);
-                        set_flag_C(1);
-                        tmp = ENFILE;
-                    } else {
-                        set_flag_C(0);
-                        tmp = dosfd;
-                        //printf(">>> OK, dosfd = %u\n", dosfd);
-                    }
+                    tmp = ENFILE;
+                } else
+                {
+                    set_flag_C(0);
+                    tmp = dosfd;
+                    //printf(">>> OK, dosfd = %u\n", dosfd);
                 }
-                uc_reg_write(uc, UC_X86_REG_AX, &tmp);
-
-                break;
             }
+            uc_reg_write(uc, UC_X86_REG_AX, &tmp);
+
+            break;
+        }
 
         case 0x3d: // open existing file
+        {
+            uint16_t tmp, r_dx, r_ds;
+            uint8_t r_al;
+            char *fname;
+            int hostfd;
+
+            uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
+            uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
+            uc_reg_read(uc, UC_X86_REG_AL, &r_al);
+
+            // read until '$'
+            fname = read_str_till_char(MK_FP(r_ds, r_dx), '$');
+            //printf(">>> Trying to open file '%s'\n", fname);
+            char fixed[512];
+            mount_str_to_real(fname, fixed);
+            hostfd = open(fixed, r_al & 3);
+            if (hostfd < 0)
+            {   // failed to open
+                set_flag_C(1);
+                tmp = errno;    // FIXME
+            } else
             {
-                uint16_t tmp, r_dx, r_ds;
-                uint8_t r_al;
-                char *fname;
-                int hostfd;
-
-                uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
-                uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
-                uc_reg_read(uc, UC_X86_REG_AL, &r_al);
-
-                // read until '$'
-                fname = read_str_till_char(MK_FP(r_ds, r_dx), '$');
-                //printf(">>> Trying to open file '%s'\n", fname);
-                char fixed[512];
-                mount_str_to_real(fname, fixed);
-                hostfd = open(fixed, r_al & 3);
-                if (hostfd < 0) {   // failed to open
+                int dosfd = fdtable_set(hostfd);
+                if (dosfd < 0)
+                {
+                    // system table is full
+                    close(hostfd);
                     set_flag_C(1);
-                    tmp = errno;    // FIXME
-                } else {
-                    int dosfd = fdtable_set(hostfd);
-                    if (dosfd < 0) {
-                        // system table is full
-                        close(hostfd);
-                        set_flag_C(1);
-                        tmp = ENFILE;
-                    } else {
-                        set_flag_C(0);
-                        tmp = dosfd;
-                        //printf(">>> OK, dosfd = %u\n", dosfd);
-                    }
+                    tmp = ENFILE;
+                } else
+                {
+                    set_flag_C(0);
+                    tmp = dosfd;
+                    //printf(">>> OK, dosfd = %u\n", dosfd);
                 }
-                uc_reg_write(uc, UC_X86_REG_AX, &tmp);
-
-                break;
             }
+            uc_reg_write(uc, UC_X86_REG_AX, &tmp);
+
+            break;
+        }
 
         case 0x3e: // close file
+        {
+            uint16_t r_bx, r_ax;
+            int fd;
+
+            // read from FD in BX register
+            uc_reg_read(uc, UC_X86_REG_BX, &r_bx);
+            fd = fdtable_get(r_bx);
+            if (fd < 0)
             {
-                uint16_t r_bx, r_ax;
-                int fd;
-
-                // read from FD in BX register
-                uc_reg_read(uc, UC_X86_REG_BX, &r_bx);
-                fd = fdtable_get(r_bx);
-                if (fd < 0) {
-                    set_flag_C(1);
-                    r_ax = EBADF;
-                    uc_reg_write(uc, UC_X86_REG_AX, &r_ax);
-                    break;
-                }
-
-                if (close(fd)) {
-                    set_flag_C(1);
-                    r_ax = errno;   // FIXME
-                } else {
-                    set_flag_C(0);
-                    fdtable_clear(r_bx);
-                }
-
-                //printf(">>> closed file = %u\n", r_bx);
-
+                set_flag_C(1);
+                r_ax = EBADF;
+                uc_reg_write(uc, UC_X86_REG_AX, &r_ax);
                 break;
             }
+
+            if (close(fd))
+            {
+                set_flag_C(1);
+                r_ax = errno;   // FIXME
+            } else
+            {
+                set_flag_C(0);
+                fdtable_clear(r_bx);
+            }
+
+            //printf(">>> closed file = %u\n", r_bx);
+
+            break;
+        }
 
         case 0x3f: // read from device
+        {
+            uint16_t r_bx, r_ax, r_cx, r_dx, r_ds;
+            int fd;
+            ssize_t count;
+
+            // read from FD in BX register
+            uc_reg_read(uc, UC_X86_REG_BX, &r_bx);
+            fd = fdtable_get(r_bx);
+            if (fd < 0)
             {
-                uint16_t r_bx, r_ax, r_cx, r_dx, r_ds;
-                int fd;
-                ssize_t count;
-
-                // read from FD in BX register
-                uc_reg_read(uc, UC_X86_REG_BX, &r_bx);
-                fd = fdtable_get(r_bx);
-                if (fd < 0) {
-                    set_flag_C(1);
-                    r_ax = EBADF;
-                    uc_reg_write(uc, UC_X86_REG_AX, &r_ax);
-                    break;
-                }
-
-                uc_reg_read(uc, UC_X86_REG_CX, &r_cx);
-                uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
-                uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
-
-                //printf(">>> trying to read from devide = %u, len = %u\n", r_bx, r_cx);
-                count = read(fd, buf, r_cx);
-                if (count < 0) {
-                    // failed to read
-                    set_flag_C(1);
-                    r_ax = errno;   // FIXME
-                } else {
-                    // copy read memory to emulator memory
-                    uc_mem_write(uc, MK_FP(r_ds, r_dx), buf, count);
-                    set_flag_C(0);
-                    r_ax = count;
-                }
-
+                set_flag_C(1);
+                r_ax = EBADF;
                 uc_reg_write(uc, UC_X86_REG_AX, &r_ax);
-
                 break;
             }
+
+            uc_reg_read(uc, UC_X86_REG_CX, &r_cx);
+            uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
+            uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
+
+            //printf(">>> trying to read from devide = %u, len = %u\n", r_bx, r_cx);
+            count = read(fd, buf, r_cx);
+            if (count < 0)
+            {
+                // failed to read
+                set_flag_C(1);
+                r_ax = errno;   // FIXME
+            } else
+            {
+                // copy read memory to emulator memory
+                uc_mem_write(uc, MK_FP(r_ds, r_dx), buf, count);
+                set_flag_C(0);
+                r_ax = count;
+            }
+
+            uc_reg_write(uc, UC_X86_REG_AX, &r_ax);
+
+            break;
+        }
 
         case 0x40: // Write to device
+        {
+            uint16_t r_ax, r_bx, r_cx, r_dx, r_ds;
+            char *buf;
+            int fd;
+            ssize_t count;
+
+            // write to FD in BX register
+            uc_reg_read(uc, UC_X86_REG_BX, &r_bx);
+            //printf(">>> trying to write to devide = %u\n", r_bx);
+            fd = fdtable_get(r_bx);
+            if (fd < 0)
             {
-                uint16_t r_ax, r_bx, r_cx, r_dx, r_ds;
-                char *buf;
-                int fd;
-                ssize_t count;
-
-                // write to FD in BX register
-                uc_reg_read(uc, UC_X86_REG_BX, &r_bx);
-                //printf(">>> trying to write to devide = %u\n", r_bx);
-                fd = fdtable_get(r_bx);
-                if (fd < 0) {
-                    set_flag_C(1);
-                    r_ax = EBADF;
-                    uc_reg_write(uc, UC_X86_REG_AX, &r_ax);
-                    break;
-                }
-
-                uc_reg_read(uc, UC_X86_REG_CX, &r_cx);
-                uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
-                uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
-
-                buf = read_str(MK_FP(r_ds, r_dx), r_cx);
-                //printf("%s", buf);
-
-                count = write(fd, buf, r_cx);
-                if (count < 0) {
-                    // failed to write
-                    set_flag_C(1);
-                    r_ax = errno;   // FIXME
-                } else {
-                    set_flag_C(0);
-                    r_ax = count;
-                }
-
+                set_flag_C(1);
+                r_ax = EBADF;
                 uc_reg_write(uc, UC_X86_REG_AX, &r_ax);
-
                 break;
             }
+
+            uc_reg_read(uc, UC_X86_REG_CX, &r_cx);
+            uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
+            uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
+
+            buf = read_str(MK_FP(r_ds, r_dx), r_cx);
+            //printf("%s", buf);
+
+            count = write(fd, buf, r_cx);
+            if (count < 0)
+            {
+                // failed to write
+                set_flag_C(1);
+                r_ax = errno;   // FIXME
+            } else
+            {
+                set_flag_C(0);
+                r_ax = count;
+            }
+
+            uc_reg_write(uc, UC_X86_REG_AX, &r_ax);
+
+            break;
+        }
 
         case 0x41: // delete a file
+        {
+            uint16_t r_dx, r_ds, r_ax;
+            char *fname;
+
+            uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
+            uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
+
+            // read until '$'
+            fname = read_str_till_char(MK_FP(r_ds, r_dx), '$');
+            //printf(">>> Trying to delete file '%s'\n", fname);
+            char fixed[512];
+            mount_str_to_real(fname, fixed);
+            if (unlink(fixed))
             {
-                uint16_t r_dx, r_ds, r_ax;
-                char *fname;
-
-                uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
-                uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
-
-                // read until '$'
-                fname = read_str_till_char(MK_FP(r_ds, r_dx), '$');
-                //printf(">>> Trying to delete file '%s'\n", fname);
-                char fixed[512];
-                mount_str_to_real(fname, fixed);
-                if (unlink(fixed)) {
-                    set_flag_C(1);
-                    r_ax = errno;
-                    uc_reg_write(uc, UC_X86_REG_AX, &r_ax);
-                } else {
-                    set_flag_C(0);
-                }
-
-                break;
+                set_flag_C(1);
+                r_ax = errno;
+                uc_reg_write(uc, UC_X86_REG_AX, &r_ax);
+            } else
+            {
+                set_flag_C(0);
             }
+
+            break;
+        }
         case 0x42: // lseek to set file position
+        {
+            uint16_t r_bx, r_cx, r_dx, r_ax;
+            uint8_t r_al;
+            int fd;
+            off_t offset;
+
+            // FD in BX register
+            uc_reg_read(uc, UC_X86_REG_BX, &r_bx);
+            fd = fdtable_get(r_bx);
+            if (fd < 0)
             {
-                uint16_t r_bx, r_cx, r_dx, r_ax;
-                uint8_t r_al;
-                int fd;
-                off_t offset;
-
-                // FD in BX register
-                uc_reg_read(uc, UC_X86_REG_BX, &r_bx);
-                fd = fdtable_get(r_bx);
-                if (fd < 0) {
-                    set_flag_C(1);
-                    r_ax = EBADF;
-                    uc_reg_write(uc, UC_X86_REG_AX, &r_ax);
-                    break;
-                }
-
-                uc_reg_read(uc, UC_X86_REG_CX, &r_cx);
-                uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
-                uc_reg_read(uc, UC_X86_REG_AL, &r_al);
-
-                offset = lseek(fd, (r_cx << 16) | r_dx, r_al);
-                //printf(">>> trying to seek in devide = %u, offset = %u, where = %u\n", r_bx, offset, r_al);
-                if (offset < 0) {
-                    // fail to seek
-                    set_flag_C(1);
-                    r_ax = errno;   // FIXME
-                    uc_reg_write(uc, UC_X86_REG_AX, &r_ax);
-                    //printf(">>> FAILED\n");
-                } else {
-                    set_flag_C(0);
-                    r_ax = offset & 0xffff;
-                    r_dx = offset >> 16;
-                    uc_reg_write(uc, UC_X86_REG_AX, &r_ax);
-                    uc_reg_write(uc, UC_X86_REG_DX, &r_dx);
-                    //printf(">>> OK\n");
-                }
-
+                set_flag_C(1);
+                r_ax = EBADF;
+                uc_reg_write(uc, UC_X86_REG_AX, &r_ax);
                 break;
             }
+
+            uc_reg_read(uc, UC_X86_REG_CX, &r_cx);
+            uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
+            uc_reg_read(uc, UC_X86_REG_AL, &r_al);
+
+            offset = lseek(fd, (r_cx << 16) | r_dx, r_al);
+            //printf(">>> trying to seek in devide = %u, offset = %u, where = %u\n", r_bx, offset, r_al);
+            if (offset < 0)
+            {
+                // fail to seek
+                set_flag_C(1);
+                r_ax = errno;   // FIXME
+                uc_reg_write(uc, UC_X86_REG_AX, &r_ax);
+                //printf(">>> FAILED\n");
+            } else
+            {
+                set_flag_C(0);
+                r_ax = offset & 0xffff;
+                r_dx = offset >> 16;
+                uc_reg_write(uc, UC_X86_REG_AX, &r_ax);
+                uc_reg_write(uc, UC_X86_REG_DX, &r_dx);
+                //printf(">>> OK\n");
+            }
+
+            break;
+        }
 
         case 0x44: // I/O control for devices
         {
@@ -699,16 +723,18 @@ void int21()
             uc_reg_read(uc, UC_X86_REG_CX, &r_cx);
 
             int fd = fdtable_get(r_bx);
-            if (fd < 0) {
+            if (fd < 0)
+            {
                 set_flag_C(1);
                 r_ax = EBADF;
                 uc_reg_write(uc, UC_X86_REG_AX, &r_ax);
                 break;
             }
 
-            FILE* fp = fdopen(fd, "r");
+            FILE *fp = fdopen(fd, "r");
 
-            printf("\n>>> 0x%x: interrupt: %x, IOCTL (44), func = %02x, fp = %02x, dev = %02d, bs = %02x\n", r_ip, 0x21, r_al, r_bx, r_bl, r_cx);
+            printf("\n>>> 0x%x: interrupt: %x, IOCTL (44), func = %02x, fp = %02x, dev = %02d, bs = %02x\n", r_ip, 0x21,
+                   r_al, r_bx, r_bl, r_cx);
 
             switch (r_al)
             {
@@ -730,8 +756,7 @@ void int21()
 
                         r_dx |= IOCTL_IS_CHAR;
                         r_dx |= IOCTL_SUPPORTS_IOCTL;
-                    }
-                    else if (S_ISBLK(stat.st_mode))
+                    } else if (S_ISBLK(stat.st_mode))
                     {
 
                     }
@@ -786,28 +811,28 @@ void int21()
         }
 
         case 0x4c: // exit
-            {
-                uint8_t r_al;
+        {
+            uint8_t r_al;
 
-                uc_reg_read(uc, UC_X86_REG_AL, &r_al);
-                printf(">>> 0x%x: interrupt: %x, AH: %02x = EXIT. quit with code = %02x!\n\n",
-                        r_ip, 0x21, r_ah, r_al);
+            uc_reg_read(uc, UC_X86_REG_AL, &r_al);
+            printf(">>> 0x%x: interrupt: %x, AH: %02x = EXIT. quit with code = %02x!\n\n",
+                   r_ip, 0x21, r_ah, r_al);
 
-                uc_emu_stop(uc);
-                break;
-            }
+            uc_emu_stop(uc);
+            break;
+        }
 
         case 0x57: // get data & time of last write to file
-            {
-                uint32_t r_eflags;
+        {
+            uint32_t r_eflags;
 
-                //printf(">>> UNIMPLEMENTED datetime\n");
-                uc_reg_read(uc, UC_X86_REG_EFLAGS, &r_eflags);
-                r_eflags &= 0xfffffffe; // eflags_C = 0
-                uc_reg_write(uc, UC_X86_REG_EFLAGS, &r_eflags);
+            //printf(">>> UNIMPLEMENTED datetime\n");
+            uc_reg_read(uc, UC_X86_REG_EFLAGS, &r_eflags);
+            r_eflags &= 0xfffffffe; // eflags_C = 0
+            uc_reg_write(uc, UC_X86_REG_EFLAGS, &r_eflags);
 
-                break;
-            }
+            break;
+        }
 
         case 0x2a: // get system date
         {
@@ -850,8 +875,7 @@ void int21()
             if (n == -1) // invalid date
             {
                 r_al = 0xFF;
-            }
-            else
+            } else
             {
                 time_offset = n - t;
             }
@@ -905,8 +929,7 @@ void int21()
             if (n == -1) // invalid date
             {
                 r_al = 0xFF;
-            }
-            else
+            } else
             {
                 time_offset = n - t;
             }
@@ -922,7 +945,7 @@ void int21()
 
             uc_reg_read(uc, UC_X86_REG_AL, &r_al);
 
-            verify_switch = (bool)r_al;
+            verify_switch = (bool) r_al;
         }
 
         case 0x2f: // get disk transfer address
@@ -941,16 +964,16 @@ void int21()
             uc_reg_read(uc, UC_X86_REG_AL, &r_al);
             uc_reg_read(uc, UC_X86_REG_DL, &r_dl);
 
-            switch(r_al)
+            switch (r_al)
             {
                 case 0x02:
-                    ext_ctrl_break_check = (bool)r_dl;
+                    ext_ctrl_break_check = (bool) r_dl;
                 case 0x00:
                     r_dl = (ctrl_break_check || ext_ctrl_break_check) ? 1 : 0;
                     break;
 
                 case 0x01:
-                    ctrl_break_check = (bool)r_dl;
+                    ctrl_break_check = (bool) r_dl;
                     break;
 
                 case 0x05:
@@ -980,7 +1003,7 @@ void int21()
             else
                 r_dl--;
 
-            char* buf = malloc(66);
+            char *buf = malloc(66);
             memset(buf, 0, 66);
             path_to_string(cur_path[r_dl], buf);
 
@@ -1007,8 +1030,7 @@ void int21()
                 set_flag_C(1);
 
                 r_ax = err;
-            }
-            else
+            } else
             {
                 set_flag_C(0);
             }
@@ -1030,8 +1052,7 @@ void int21()
                 set_flag_C(1);
 
                 r_ax = err;
-            }
-            else
+            } else
             {
                 set_flag_C(0);
             }
@@ -1053,8 +1074,7 @@ void int21()
                 set_flag_C(1);
 
                 r_ax = err;
-            }
-            else
+            } else
             {
                 set_flag_C(0);
             }

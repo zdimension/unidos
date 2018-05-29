@@ -9,13 +9,13 @@ struct mem_block
 {
     uint16_t segment;
     uint16_t size;
-    struct mem_block* prev;
-    struct mem_block* next;
+    struct mem_block *prev;
+    struct mem_block *next;
 } *mem_blocks = NULL;
 
 uint8_t mem_free(uint16_t seg)
 {
-    for(struct mem_block* cur = mem_blocks; cur; cur = cur->next)
+    for (struct mem_block *cur = mem_blocks; cur; cur = cur->next)
     {
         if (cur->segment == seg)
         {
@@ -60,7 +60,7 @@ uint8_t mem_alloc(uint16_t size, uint16_t *seg)
             return ERR_INSUFFICIENT_MEMORY;
         }
 
-        for(struct mem_block* cur = mem_blocks; cur; cur = cur->next)
+        for (struct mem_block *cur = mem_blocks; cur; cur = cur->next)
         {
             uint32_t begin = cur->segment << 4;
             uint32_t end = begin + cur->size;
@@ -74,9 +74,9 @@ uint8_t mem_alloc(uint16_t size, uint16_t *seg)
         }
 
         break;
-    } while(true);
+    } while (true);
 
-    struct mem_block* blk = malloc(sizeof(struct mem_block));
+    struct mem_block *blk = malloc(sizeof(struct mem_block));
 
     blk->segment = addr >> 4;
     blk->size = size;
@@ -97,8 +97,9 @@ uint8_t mem_alloc(uint16_t size, uint16_t *seg)
         return ERR_SUCCESS;
     }
 
-    struct mem_block* cur = mem_blocks;
-    while (cur->next) cur = cur->next;
+    struct mem_block *cur = mem_blocks;
+    while (cur->next)
+        cur = cur->next;
 
     cur->next = blk;
     blk->prev = cur;
@@ -108,9 +109,9 @@ uint8_t mem_alloc(uint16_t size, uint16_t *seg)
 
 uint8_t mem_realloc(uint16_t size, uint16_t seg)
 {
-    struct mem_block* cur = NULL;
+    struct mem_block *cur = NULL;
 
-    for(cur = mem_blocks; cur; cur = cur->next)
+    for (cur = mem_blocks; cur; cur = cur->next)
     {
         if (cur->segment == seg)
             break;
@@ -120,7 +121,7 @@ uint8_t mem_realloc(uint16_t size, uint16_t seg)
         return ERR_INVALID_MEMORY_BLOCK_ADDRESS;
 
     uint16_t old_size = cur->size;
-    void* buf = malloc(old_size);
+    void *buf = malloc(old_size);
     uc_mem_read(uc, cur->segment << 4, buf, old_size);
 
     if (mem_free(seg))

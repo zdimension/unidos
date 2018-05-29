@@ -21,7 +21,7 @@ const time_t time_fix()
     return time(NULL) + time_offset;
 }
 
-void ptime_fix(struct timeval* val)
+void ptime_fix(struct timeval *val)
 {
     gettimeofday(val, NULL);
     val->tv_sec += time_offset;

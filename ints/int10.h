@@ -4,6 +4,7 @@
 #include <unicorn/unicorn.h>
 
 void int10_init();
+
 void int10();
 
 #endif

@@ -33,9 +33,12 @@ struct FCB
 };
 #pragma pack(pop)
 
-uint8_t fcb_close(struct FCB* fcb);
-uint8_t fcb_open(struct FCB* fcb);
-void fcb_filename(struct FCB* fcb, char* buf);
-int fcb_get_fd(struct FCB* fcb);
+uint8_t fcb_close(struct FCB *fcb);
+
+uint8_t fcb_open(struct FCB *fcb);
+
+void fcb_filename(struct FCB *fcb, char *buf);
+
+int fcb_get_fd(struct FCB *fcb);
 
 #endif

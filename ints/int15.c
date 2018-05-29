@@ -95,7 +95,8 @@ void int15_init()
 
 
 // callback for handling interrupt
-void int15() {
+void int15()
+{
     uint16_t r_ip;
     uint8_t r_ah;
 
@@ -104,7 +105,8 @@ void int15() {
 
     //printf(">>> 0x%x: interrupt: %x, AH = %02x\n", r_ip, 0x15, r_ah);
 
-    switch(r_ah) {
+    switch (r_ah)
+    {
         default:
             printf("\n>>> 0x%x: interrupt: %x, AH = %02x\n", r_ip, 0x15, r_ah);
             break;

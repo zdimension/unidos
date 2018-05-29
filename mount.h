@@ -34,8 +34,11 @@ enum DRIVES
 };
 
 uint8_t mount_remove(uint8_t drive);
-uint8_t mount_add(uint8_t drive, char* path);
-uint8_t mount_str_to_real(char* inp, char* buf);
-uint8_t mount_to_real(struct dospath* path, char* buf);
+
+uint8_t mount_add(uint8_t drive, char *path);
+
+uint8_t mount_str_to_real(char *inp, char *buf);
+
+uint8_t mount_to_real(struct dospath *path, char *buf);
 
 #endif

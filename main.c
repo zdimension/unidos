@@ -16,8 +16,6 @@
 #define DOS_ADDR 0x100
 
 
-
-
 static void usage(char *prog)
 {
     printf("UniDOS for DOS emulation. Based on Unicorn engine (www.unicorn-engine.org)\n");
@@ -35,7 +33,8 @@ void hook_intr(uc_engine *uc, uint32_t intno, void *user_data)
 
     // only handle DOS interrupt
 
-    switch(intno) {
+    switch (intno)
+    {
         default:
             printf(">>> 0x%x: interrupt: %x, function %x\n", r_ip, intno, r_ah);
             break;
@@ -56,7 +55,7 @@ void hook_intr(uc_engine *uc, uint32_t intno, void *user_data)
     }
 }
 
-uc_engine* uc;
+uc_engine *uc;
 
 int main(int argc, char **argv)
 {
@@ -67,14 +66,16 @@ int main(int argc, char **argv)
     uint8_t fcontent[64 * 1024];    // 64KB for .COM file
     long fsize;
 
-    if (argc == 1) {
+    if (argc == 1)
+    {
         usage(argv[0]);
         return -1;
     }
 
     fname = argv[1];
     f = fopen(fname, "r");
-    if (f == NULL) {
+    if (f == NULL)
+    {
         printf("ERROR: failed to open file '%s'\n", fname);
         return -2;
     }
@@ -88,14 +89,16 @@ int main(int argc, char **argv)
     memset(fcontent, 0, sizeof(fcontent));
     fread(fcontent + DOS_ADDR, fsize, 1, f);
 
-    err = uc_open (UC_ARCH_X86, UC_MODE_16, &uc);
-    if (err) {
-        fprintf (stderr, "Cannot initialize unicorn\n");
+    err = uc_open(UC_ARCH_X86, UC_MODE_16, &uc);
+    if (err)
+    {
+        fprintf(stderr, "Cannot initialize unicorn\n");
         return 1;
     }
 
     // map 64KB in
-    if (uc_mem_map (uc, 0, 64 * 1024, UC_PROT_ALL) || uc_mem_map(uc, 0xC0000, 0x10000, UC_PROT_READ)) {
+    if (uc_mem_map(uc, 0, 64 * 1024, UC_PROT_ALL) || uc_mem_map(uc, 0xC0000, 0x10000, UC_PROT_READ))
+    {
         printf("Failed to write emulation code to memory, quit!\n");
         uc_close(uc);
         return 0;
@@ -112,15 +115,16 @@ int main(int argc, char **argv)
     psp_setup(0, fcontent, argc, argv);
 
     // write machine code to be emulated in, including the prefix PSP
-    uc_mem_write (uc, 0, fcontent, DOS_ADDR + fsize);
+    uc_mem_write(uc, 0, fcontent, DOS_ADDR + fsize);
 
     // handle interrupt ourself
     uc_hook_add(uc, &trace, UC_HOOK_INTR, hook_intr, NULL, 1, 0);
 
     err = uc_emu_start(uc, DOS_ADDR, DOS_ADDR + 0x10000, 0, 0);
-    if (err) {
+    if (err)
+    {
         printf("Failed on uc_emu_start() with error returned %u: %s\n",
-                err, uc_strerror(err));
+               err, uc_strerror(err));
     }
 
     uc_close(uc);

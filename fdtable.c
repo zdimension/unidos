@@ -13,7 +13,7 @@ void fdtable_init(void)
     fdtable[2] = 2;
 
     // disable other fd
-    for(i = 3; i < FD_TABLE_SIZE; i++)
+    for (i = 3; i < FD_TABLE_SIZE; i++)
         fdtable[i] = -1;
 }
 
@@ -31,8 +31,10 @@ int fdtable_set(int hostfd)
 {
     int i;
 
-    for(i = 0; i < FD_TABLE_SIZE; i++) {
-        if (fdtable[i] == -1) {
+    for (i = 0; i < FD_TABLE_SIZE; i++)
+    {
+        if (fdtable[i] == -1)
+        {
             // found a free slot, which is also a dos FD
             fdtable[i] = hostfd;
             return i;

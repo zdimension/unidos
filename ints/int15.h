@@ -4,6 +4,7 @@
 #include <unicorn/unicorn.h>
 
 void int15_init();
+
 void int15();
 
 #endif

@@ -8,7 +8,7 @@ void psp_setup(int16_t seg, uint8_t *fcontent, int argc, char **argv)
     uint32_t abs = MK_FP(seg, 0);
     int i, j;
     uint8_t c = 0;
-    struct PSP *PSP = (struct PSP *)(fcontent + abs);
+    struct PSP *PSP = (struct PSP *) (fcontent + abs);
 
     // CPMExit: INT 20h
     PSP->CPMExit[0] = 0xcd;
@@ -23,7 +23,8 @@ void psp_setup(int16_t seg, uint8_t *fcontent, int argc, char **argv)
     PSP->FCB1[0] = 0x01;
     PSP->FCB1[1] = 0x20;
 
-    for (i = 2; i < argc && c < 0x7E; i++) {
+    for (i = 2; i < argc && c < 0x7E; i++)
+    {
         j = 0;
         PSP->CommandLine[c++] = ' ';
         while (argv[i][j] && c < 0x7E)
@@ -43,8 +44,9 @@ void psp_setup(int16_t seg, uint8_t *fcontent, int argc, char **argv)
 
 uint8_t psp_create(int16_t seg)
 {
-    uc_err err = uc_mem_map (uc, MK_FP(seg, 0), 4096, UC_PROT_ALL);
-    if (err) {
+    uc_err err = uc_mem_map(uc, MK_FP(seg, 0), 4096, UC_PROT_ALL);
+    if (err)
+    {
         printf("Failed to allocate memory for new PSP!\n");
         print_uc_err(err);
         return ERR_INSUFFICIENT_MEMORY;
@@ -55,7 +57,7 @@ uint8_t psp_create(int16_t seg)
 
 uint8_t psp_copy(uint16_t source, uint16_t target)
 {
-    void* buf = malloc(256);
+    void *buf = malloc(256);
 
     uc_mem_read(uc, MK_FP(source, 0), buf, 256);
 
