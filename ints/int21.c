@@ -336,6 +336,19 @@ void int21()
             break;
         }
 
+        case 0x26: // create new program segment prefix
+        {
+            uint16_t r_dx;
+
+            uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
+
+            printf("Creating a new PSP @ seg %04x\n", r_dx);
+
+            psp_create(r_dx);
+            psp_copy(current_proc_seg, r_dx);
+            break;
+        }
+
         case 0x30: // return DOS version 7.0
             {
                 uint8_t r_al = 6;   // major
