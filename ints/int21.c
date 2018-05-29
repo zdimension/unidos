@@ -689,6 +689,46 @@ void int21()
             break;
         }
 
+        case 0x4b: // exec/load and execute program
+        {
+            uint8_t r_al;
+
+            uc_reg_read(uc, UC_X86_REG_AL, &r_al);
+
+            uint16_t r_dx, r_ds, r_ax;
+            char *fname;
+
+            uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
+            uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
+
+            // read until '$'
+            fname = read_str_till_char(MK_FP(r_ds, r_dx), '\0');
+
+            printf("21,4B %02x ", r_al);
+
+            switch (r_al)
+            {
+                case 0x00:
+                    printf("load and execute");
+                    break;
+                case 0x01:
+                    printf("create PSP, load only");
+                    break;
+                case 0x03:
+                    printf("load only");
+                    break;
+                case 0x04:
+                    printf("P_NOWAIT specified");
+                    break;
+            }
+
+            printf(" @ %s\n", fname);
+
+            uc_reg_write(uc, UC_X86_REG_AX, &r_ax);
+
+            break;
+        }
+
         case 0x4c: // exit
             {
                 uint8_t r_al;
