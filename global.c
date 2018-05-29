@@ -40,3 +40,11 @@ void print_uc_err(uc_err err)
     printf("Unicorn error returned %u: %s\n",
            err, uc_strerror(err));
 }
+
+uint8_t fix_drive(uint8_t drive)
+{
+    if (drive == 0)
+        return cur_drive;
+
+    return drive - 1;
+}

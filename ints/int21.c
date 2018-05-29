@@ -15,6 +15,7 @@
 #include <psp.h>
 #include <mount.h>
 
+#include "fcb.h"
 #include "../util/uc.h"
 #include "int21.h"
 #include "../global.h"
@@ -244,6 +245,111 @@ void int21()
             uint8_t r_al = 1;
 
             uc_reg_write(uc, UC_X86_REG_AL, &r_al);
+
+            break;
+        }
+
+        case 0x0f: // open file with FCB
+        {
+            uint16_t r_dx, r_ds;
+
+            uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
+            uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
+
+            struct FCB fcb;
+
+            uc_mem_read(uc, MK_FP(r_ds, r_dx), &fcb, sizeof(fcb));
+
+            uint8_t err = fcb_open(&fcb);
+
+            uc_mem_write(uc, MK_FP(r_ds, r_dx), &fcb, sizeof(fcb));
+
+            uint8_t r_al = err ? 0xFF : 0x00;
+
+            uc_reg_write(uc, UC_X86_REG_AL, &r_al);
+
+            break;
+        }
+
+        case 0x10: // close file with FCB
+        {
+            uint16_t r_dx, r_ds;
+
+            uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
+            uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
+
+            struct FCB fcb;
+
+            uc_mem_read(uc, MK_FP(r_ds, r_dx), &fcb, sizeof(fcb));
+
+            uint8_t err = fcb_close(&fcb);
+
+            uint8_t r_al = err ? 0xFF : 0x00;
+
+            uc_reg_write(uc, UC_X86_REG_AL, &r_al);
+
+            break;
+        }
+
+        case 0x13: // delete file with FCB
+        {
+            uint16_t r_dx, r_ds;
+
+            uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
+            uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
+
+            struct FCB fcb;
+
+            uc_mem_read(uc, MK_FP(r_ds, r_dx), &fcb, sizeof(fcb));
+
+            char* fname[15];
+            fcb_filename(&fcb, fname);
+
+            char fixed[512];
+            mount_str_to_real(fname, fixed);
+
+            uint8_t r_al = 0x00;
+
+            if (unlink(fixed)) {
+                r_al = 0xFF;
+            }
+
+            uc_reg_write(uc, UC_X86_REG_AL, &r_al);
+
+            break;
+        }
+
+        case 0x27: // random block read with FCB
+        {
+            uint16_t r_cx, r_dx, r_ds;
+
+            uc_reg_read(uc, UC_X86_REG_CX, &r_cx);
+
+            uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
+            uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
+
+            struct FCB fcb;
+
+            uc_mem_read(uc, MK_FP(r_ds, r_dx), &fcb, sizeof(fcb));
+
+            int host_fd = fcb_get_fd(&fcb);
+
+            size_t size = r_cx * fcb.record_size;
+            void* buf = malloc(size);
+            memset(buf, 0, size);
+            ssize_t num = read(host_fd, buf, size);
+
+            uc_mem_write(uc, dta, buf, size);
+
+            uint8_t r_al = 0x00;
+
+            if (num == 0)
+                r_al = 0x01; // EOF
+
+            r_cx = num / fcb.record_size;
+
+            uc_reg_write(uc, UC_X86_REG_AL, &r_al);
+            uc_reg_write(uc, UC_X86_REG_CX, &r_cx);
 
             break;
         }

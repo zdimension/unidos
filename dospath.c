@@ -9,7 +9,8 @@ void path_to_string(struct dospath path, char* buf)
     if (path.drive != -1)
     {
         buf[0] = path.drive + 'A';
-        strcat(buf, ":");
+        buf[1] = ':';
+        buf[2] = 0;
     }
 
     if (path.depth == 0)

@@ -22,5 +22,6 @@ const time_t time_fix();
 void ptime_fix(struct timeval* val);
 void global_init();
 void print_uc_err(uc_err err);
+uint8_t fix_drive(uint8_t drive);
 
 #endif
