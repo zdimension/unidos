@@ -123,6 +123,60 @@ unidos/fast:
 	$(MAKE) -f CMakeFiles/unidos.dir/build.make CMakeFiles/unidos.dir/build
 .PHONY : unidos/fast
 
+dospath.o: dospath.c.o
+
+.PHONY : dospath.o
+
+# target to build an object file
+dospath.c.o:
+	$(MAKE) -f CMakeFiles/unidos.dir/build.make CMakeFiles/unidos.dir/dospath.c.o
+.PHONY : dospath.c.o
+
+dospath.i: dospath.c.i
+
+.PHONY : dospath.i
+
+# target to preprocess a source file
+dospath.c.i:
+	$(MAKE) -f CMakeFiles/unidos.dir/build.make CMakeFiles/unidos.dir/dospath.c.i
+.PHONY : dospath.c.i
+
+dospath.s: dospath.c.s
+
+.PHONY : dospath.s
+
+# target to generate assembly for a file
+dospath.c.s:
+	$(MAKE) -f CMakeFiles/unidos.dir/build.make CMakeFiles/unidos.dir/dospath.c.s
+.PHONY : dospath.c.s
+
+fdtable.o: fdtable.c.o
+
+.PHONY : fdtable.o
+
+# target to build an object file
+fdtable.c.o:
+	$(MAKE) -f CMakeFiles/unidos.dir/build.make CMakeFiles/unidos.dir/fdtable.c.o
+.PHONY : fdtable.c.o
+
+fdtable.i: fdtable.c.i
+
+.PHONY : fdtable.i
+
+# target to preprocess a source file
+fdtable.c.i:
+	$(MAKE) -f CMakeFiles/unidos.dir/build.make CMakeFiles/unidos.dir/fdtable.c.i
+.PHONY : fdtable.c.i
+
+fdtable.s: fdtable.c.s
+
+.PHONY : fdtable.s
+
+# target to generate assembly for a file
+fdtable.c.s:
+	$(MAKE) -f CMakeFiles/unidos.dir/build.make CMakeFiles/unidos.dir/fdtable.c.s
+.PHONY : fdtable.c.s
+
 global.o: global.c.o
 
 .PHONY : global.o
@@ -285,32 +339,86 @@ main.c.s:
 	$(MAKE) -f CMakeFiles/unidos.dir/build.make CMakeFiles/unidos.dir/main.c.s
 .PHONY : main.c.s
 
-util/dospath.o: util/dospath.c.o
+mem.o: mem.c.o
 
-.PHONY : util/dospath.o
+.PHONY : mem.o
 
 # target to build an object file
-util/dospath.c.o:
-	$(MAKE) -f CMakeFiles/unidos.dir/build.make CMakeFiles/unidos.dir/util/dospath.c.o
-.PHONY : util/dospath.c.o
+mem.c.o:
+	$(MAKE) -f CMakeFiles/unidos.dir/build.make CMakeFiles/unidos.dir/mem.c.o
+.PHONY : mem.c.o
 
-util/dospath.i: util/dospath.c.i
+mem.i: mem.c.i
 
-.PHONY : util/dospath.i
+.PHONY : mem.i
 
 # target to preprocess a source file
-util/dospath.c.i:
-	$(MAKE) -f CMakeFiles/unidos.dir/build.make CMakeFiles/unidos.dir/util/dospath.c.i
-.PHONY : util/dospath.c.i
+mem.c.i:
+	$(MAKE) -f CMakeFiles/unidos.dir/build.make CMakeFiles/unidos.dir/mem.c.i
+.PHONY : mem.c.i
 
-util/dospath.s: util/dospath.c.s
+mem.s: mem.c.s
 
-.PHONY : util/dospath.s
+.PHONY : mem.s
 
 # target to generate assembly for a file
-util/dospath.c.s:
-	$(MAKE) -f CMakeFiles/unidos.dir/build.make CMakeFiles/unidos.dir/util/dospath.c.s
-.PHONY : util/dospath.c.s
+mem.c.s:
+	$(MAKE) -f CMakeFiles/unidos.dir/build.make CMakeFiles/unidos.dir/mem.c.s
+.PHONY : mem.c.s
+
+mount.o: mount.c.o
+
+.PHONY : mount.o
+
+# target to build an object file
+mount.c.o:
+	$(MAKE) -f CMakeFiles/unidos.dir/build.make CMakeFiles/unidos.dir/mount.c.o
+.PHONY : mount.c.o
+
+mount.i: mount.c.i
+
+.PHONY : mount.i
+
+# target to preprocess a source file
+mount.c.i:
+	$(MAKE) -f CMakeFiles/unidos.dir/build.make CMakeFiles/unidos.dir/mount.c.i
+.PHONY : mount.c.i
+
+mount.s: mount.c.s
+
+.PHONY : mount.s
+
+# target to generate assembly for a file
+mount.c.s:
+	$(MAKE) -f CMakeFiles/unidos.dir/build.make CMakeFiles/unidos.dir/mount.c.s
+.PHONY : mount.c.s
+
+psp.o: psp.c.o
+
+.PHONY : psp.o
+
+# target to build an object file
+psp.c.o:
+	$(MAKE) -f CMakeFiles/unidos.dir/build.make CMakeFiles/unidos.dir/psp.c.o
+.PHONY : psp.c.o
+
+psp.i: psp.c.i
+
+.PHONY : psp.i
+
+# target to preprocess a source file
+psp.c.i:
+	$(MAKE) -f CMakeFiles/unidos.dir/build.make CMakeFiles/unidos.dir/psp.c.i
+.PHONY : psp.c.i
+
+psp.s: psp.c.s
+
+.PHONY : psp.s
+
+# target to generate assembly for a file
+psp.c.s:
+	$(MAKE) -f CMakeFiles/unidos.dir/build.make CMakeFiles/unidos.dir/psp.c.s
+.PHONY : psp.c.s
 
 util/uc.o: util/uc.c.o
 
@@ -348,6 +456,12 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... unidos"
 	@echo "... edit_cache"
+	@echo "... dospath.o"
+	@echo "... dospath.i"
+	@echo "... dospath.s"
+	@echo "... fdtable.o"
+	@echo "... fdtable.i"
+	@echo "... fdtable.s"
 	@echo "... global.o"
 	@echo "... global.i"
 	@echo "... global.s"
@@ -366,9 +480,15 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
-	@echo "... util/dospath.o"
-	@echo "... util/dospath.i"
-	@echo "... util/dospath.s"
+	@echo "... mem.o"
+	@echo "... mem.i"
+	@echo "... mem.s"
+	@echo "... mount.o"
+	@echo "... mount.i"
+	@echo "... mount.s"
+	@echo "... psp.o"
+	@echo "... psp.i"
+	@echo "... psp.s"
 	@echo "... util/uc.o"
 	@echo "... util/uc.i"
 	@echo "... util/uc.s"

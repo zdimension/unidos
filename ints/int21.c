@@ -11,13 +11,16 @@
 #include <unicorn/unicorn.h>
 #include <mem.h>
 #include <defs.h>
+#include <fdtable.h>
+#include <psp.h>
+#include <mount.h>
 
 #include "../util/uc.h"
 #include "int21.h"
 #include "../global.h"
-#include "../util/dospath.h"
+#include "dospath.h"
 
-#define FD_TABLE_SIZE 256
+
 
 enum IOCTL_FUNC
 {
@@ -65,7 +68,6 @@ enum IOCTL_INFO
 
 static uint8_t str_buf[1024];   // buffer for reading string from memory
 static uint16_t dta;    // disk transfer area address
-static int fdtable[FD_TABLE_SIZE];
 static char buf[64 * 1024];
 
 
@@ -100,66 +102,8 @@ static char *read_str_till_char(uint64_t addr, char terminator)
 }
 
 
-
-
-
-// initialize FD table
-static void fdtable_init(void)
-{
-    int i;
-
-    // enable special fd
-    fdtable[0] = 0;
-    fdtable[1] = 1;
-    fdtable[2] = 2;
-
-    // disable other fd
-    for(i = 3; i < FD_TABLE_SIZE; i++)
-        fdtable[i] = -1;
-}
-
-
-// clear FD
-static void fdtable_clear(int fd)
-{
-    if (fd < 3 || fd >= FD_TABLE_SIZE)
-        return;
-
-    fdtable[fd] = -1;
-}
-
-
-// map host FD to dos FD
-static int fdtable_set(int hostfd)
-{
-    int i;
-
-    for(i = 0; i < FD_TABLE_SIZE; i++) {
-        if (fdtable[i] == -1) {
-            // found a free slot, which is also a dos FD
-            fdtable[i] = hostfd;
-            return i;
-        }
-    }
-
-    // not found
-    return -1;
-}
-
-
-// map DOS FD to host FD
-static int fdtable_get(int dosfd)
-{
-    if (dosfd > 0 && dosfd < FD_TABLE_SIZE)
-        return fdtable[dosfd];
-
-    return -1;
-}
-
-
 void int21_init(void)
 {
-    fdtable_init();
     memset(cur_path, 0, 26 * sizeof(struct dospath));
     for (int i = 0; i < 26; i++)
     {
@@ -177,7 +121,7 @@ void int21()
     uc_reg_read(uc, UC_X86_REG_AH, &r_ah);
     uc_reg_read(uc, UC_X86_REG_IP, &r_ip);
 
-    //printf(">>> 0x%x: interrupt: %x, AH = %02x\n", r_ip, 0x21, r_ah);
+    printf(">>> 0x%x: interrupt: %x, AH = %02x\n", r_ip, 0x21, r_ah);
 
     rerun:
 
@@ -283,6 +227,8 @@ void int21()
 
             uc_reg_read(uc, UC_X86_REG_AL, &r_al);
 
+            printf("Invoking keyboard function %02x\n", r_al);
+
             r_ah = r_al;
             goto rerun;
         }
@@ -372,7 +318,7 @@ void int21()
             chdir = read_str_till_char(MK_FP(r_ds, r_dx), '$');
 
             struct dospath res;
-            string_to_path(chdir, &res);
+            path_parse(chdir, &res);
 
             if (res.drive != -1)
             {
@@ -403,8 +349,10 @@ void int21()
                 fname = read_str_till_char(MK_FP(r_ds, r_dx), '$');
                 //printf(">>> Trying to create a new file '%s'\n", fname);
 
+                char fixed[512];
+                mount_str_to_real(fname, fixed);
                 // TODO ignore attributes
-                hostfd = open(fname, O_CREAT | O_TRUNC | O_RDWR);
+                hostfd = open(fixed, O_CREAT | O_TRUNC | O_RDWR);
                 if (hostfd < 0) {   // failed to open
                     set_flag_C(1);
                     tmp = errno;    // FIXME
@@ -440,8 +388,9 @@ void int21()
                 // read until '$'
                 fname = read_str_till_char(MK_FP(r_ds, r_dx), '$');
                 //printf(">>> Trying to open file '%s'\n", fname);
-
-                hostfd = open(fname, r_al & 3);
+                char fixed[512];
+                mount_str_to_real(fname, fixed);
+                hostfd = open(fixed, r_al & 3);
                 if (hostfd < 0) {   // failed to open
                     set_flag_C(1);
                     tmp = errno;    // FIXME
@@ -580,8 +529,9 @@ void int21()
                 // read until '$'
                 fname = read_str_till_char(MK_FP(r_ds, r_dx), '$');
                 //printf(">>> Trying to delete file '%s'\n", fname);
-
-                if (unlink(fname)) {
+                char fixed[512];
+                mount_str_to_real(fname, fixed);
+                if (unlink(fixed)) {
                     set_flag_C(1);
                     r_ax = errno;
                     uc_reg_write(uc, UC_X86_REG_AX, &r_ax);

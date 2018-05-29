@@ -3,8 +3,6 @@
 
 #include <unicorn/unicorn.h>
 
-
-
 void int21_init();
 void int21();
 

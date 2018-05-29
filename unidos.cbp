@@ -74,6 +74,21 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/mnt/d/Documents/GitHub/unidos/defs.h">
+			<Option target="unidos"/>
+		</Unit>
+		<Unit filename="/mnt/d/Documents/GitHub/unidos/dospath.c">
+			<Option target="unidos"/>
+		</Unit>
+		<Unit filename="/mnt/d/Documents/GitHub/unidos/dospath.h">
+			<Option target="unidos"/>
+		</Unit>
+		<Unit filename="/mnt/d/Documents/GitHub/unidos/fdtable.c">
+			<Option target="unidos"/>
+		</Unit>
+		<Unit filename="/mnt/d/Documents/GitHub/unidos/fdtable.h">
+			<Option target="unidos"/>
+		</Unit>
 		<Unit filename="/mnt/d/Documents/GitHub/unidos/global.c">
 			<Option target="unidos"/>
 		</Unit>
@@ -110,10 +125,22 @@
 		<Unit filename="/mnt/d/Documents/GitHub/unidos/main.c">
 			<Option target="unidos"/>
 		</Unit>
-		<Unit filename="/mnt/d/Documents/GitHub/unidos/util/dospath.c">
+		<Unit filename="/mnt/d/Documents/GitHub/unidos/mem.c">
 			<Option target="unidos"/>
 		</Unit>
-		<Unit filename="/mnt/d/Documents/GitHub/unidos/util/dospath.h">
+		<Unit filename="/mnt/d/Documents/GitHub/unidos/mem.h">
+			<Option target="unidos"/>
+		</Unit>
+		<Unit filename="/mnt/d/Documents/GitHub/unidos/mount.c">
+			<Option target="unidos"/>
+		</Unit>
+		<Unit filename="/mnt/d/Documents/GitHub/unidos/mount.h">
+			<Option target="unidos"/>
+		</Unit>
+		<Unit filename="/mnt/d/Documents/GitHub/unidos/psp.c">
+			<Option target="unidos"/>
+		</Unit>
+		<Unit filename="/mnt/d/Documents/GitHub/unidos/psp.h">
 			<Option target="unidos"/>
 		</Unit>
 		<Unit filename="/mnt/d/Documents/GitHub/unidos/util/uc.c">
