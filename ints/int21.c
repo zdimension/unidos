@@ -322,6 +322,20 @@ void int21()
                 break;
             }
 
+        case 0x25: // set interrupt vector
+        {
+            uint8_t r_al;
+            uint16_t r_ds, r_dx;
+
+            uc_reg_read(uc, UC_X86_REG_AL, &r_al);
+            uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
+            uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
+
+            printf("[Unimpl] Set interrupt vector %02x @ %04x:%04x\n", r_al, r_ds, r_dx);
+
+            break;
+        }
+
         case 0x30: // return DOS version 7.0
             {
                 uint8_t r_al = 6;   // major
