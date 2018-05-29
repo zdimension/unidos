@@ -29,9 +29,11 @@ uint8_t mem_free(uint16_t seg)
                 cur->next->prev = cur->prev;
             }
 
-            if (uc_mem_unmap(uc, cur->segment << 4, cur->size))
+            uc_err err = uc_mem_unmap(uc, cur->segment << 4, cur->size);
+            if (err)
             {
                 printf("Failed to free memory block!\n");
+                print_uc_err(err);
                 return ERR_INSUFFICIENT_MEMORY;
             }
 
@@ -66,7 +68,7 @@ uint8_t mem_alloc(uint16_t size, uint16_t *seg)
             {
                 addr = end;
                 if (addr & 0xF)
-                    addr = (addr + 0x10) & ~0x0F;
+                    addr = ALIGN(addr, 16);
                 continue;
             }
         }
@@ -79,9 +81,11 @@ uint8_t mem_alloc(uint16_t size, uint16_t *seg)
     blk->segment = addr >> 4;
     blk->size = size;
 
-    if (uc_mem_map(uc, blk->segment << 4, blk->size, UC_PROT_ALL))
+    uc_err err = uc_mem_map(uc, blk->segment << 4, blk->size, UC_PROT_ALL);
+    if (err)
     {
         printf("Failed to allocate memory block!\n");
+        print_uc_err(err);
         return ERR_INSUFFICIENT_MEMORY;
     }
 
