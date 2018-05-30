@@ -67,7 +67,7 @@ enum IOCTL_INFO
 };
 
 static uint8_t str_buf[1024];   // buffer for reading string from memory
-static uint16_t dta;    // disk transfer area address
+static uint16_t dta = 0x80;    // disk transfer area address
 static char buf[64 * 1024];
 
 
@@ -123,7 +123,7 @@ void int21()
     uc_reg_read(uc, UC_X86_REG_AH, &r_ah);
     uc_reg_read(uc, UC_X86_REG_IP, &r_ip);
 
-    printf(">>> 0x%x: interrupt: %x, AH = %02x\n", r_ip, 0x21, r_ah);
+    //printf(">>> 0x%x: interrupt: %x, AH = %02x\n", r_ip, 0x21, r_ah);
 
     rerun:
 
@@ -304,7 +304,7 @@ void int21()
 
             uc_mem_read(uc, MK_FP(r_ds, r_dx), &fcb, sizeof(fcb));
 
-            char* fname[15];
+            char fname[16];
             fcb_filename(&fcb, fname);
 
             char fixed[512];
@@ -340,8 +340,13 @@ void int21()
             size_t size = r_cx * fcb.record_size;
             void* buf = malloc(size);
             memset(buf, 0, size);
-            ssize_t num = read(host_fd, buf, size);
 
+            printf("Attempting to read %d records (%ld bytes) from FD %d at record %d\n", r_cx, size, host_fd, fcb.relative_record_number);
+
+            //lseek(host_fd, fcb.relative_record_number * fcb.record_size, SEEK_SET);
+
+            ssize_t num = read(host_fd, buf, size);
+            printf("%d\n", errno);
             uc_mem_write(uc, dta, buf, size);
 
             uint8_t r_al = 0x00;
@@ -353,6 +358,8 @@ void int21()
 
             uc_reg_write(uc, UC_X86_REG_AL, &r_al);
             uc_reg_write(uc, UC_X86_REG_CX, &r_cx);
+
+            printf("%d records read (%ld bytes)\n", r_cx, num);
 
             break;
         }

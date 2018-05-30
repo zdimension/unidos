@@ -67,13 +67,17 @@ uint8_t fcb_open(struct FCB* fcb)
         }
     }
 
-    char fname[15];
+    char fname[16];
     fcb_filename(fcb, fname);
+
+    printf("Absolute filename: %s\n", fname);
 
     char fixed[512];
     mount_str_to_real(fname, fixed);
 
-    int host_fd = open(fixed, O_CREAT | O_TRUNC | O_RDWR);
+    printf("Real filename: %s\n", fixed);
+
+    int host_fd = open(fixed, O_RDWR);
     if (host_fd < 0)
     {   // failed to open
         printf("Unable to open file\n");
@@ -109,13 +113,28 @@ uint8_t fcb_open(struct FCB* fcb)
 
 void fcb_filename(struct FCB* fcb, char* fname)
 {
-    memset(fname, 0, 15);
+    memset(fname, 0, 16);
     fname[0] = fix_drive(fcb->drive) + 'A';
     fname[1] = ':';
     fname[2] = '\\';
-    strcat(fname, fcb->filename);
-    fname[11] = '.';
-    strcat(fname, fcb->extension);
+    strncat(fname, fcb->filename, 8);
+
+    for(int i = 10; i >= 4; i--)
+    {
+        if (fname[i] != ' ')
+            break;
+        fname[i] = 0;
+    }
+
+    strcat(fname, ".");
+    strncat(fname, fcb->extension, 3);
+
+    for(int i = 14; i >= 12; i--)
+    {
+        if (fname[i] != ' ')
+            break;
+        fname[i] = 0;
+    }
 }
 
 int fcb_get_fd(struct FCB* fcb)
