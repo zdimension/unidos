@@ -1,7 +1,14 @@
 #ifndef UNIDOS_GLOBAL_H
 #define UNIDOS_GLOBAL_H
 
-#include <bits/types/time_t.h>
+#ifndef TRUE
+#define TRUE 1
+#endif
+
+#ifndef FALSE
+#define FALSE 0
+#endif
+
 #include <sys/time.h>
 #include <stdbool.h>
 #include <unicorn/unicorn.h>

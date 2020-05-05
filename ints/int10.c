@@ -1,4 +1,3 @@
-#include <curses.h>
 #include <global.h>
 
 #include "int10.h"

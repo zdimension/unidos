@@ -204,7 +204,11 @@ void int21()
             uc_mem_read(uc, MK_FP(r_ds, r_dx), &max_buf, 1);
 
             fscanf(stdin, "%ms", &buf);
+#if FALSE
             str = strndup(buf, max_buf - 1);
+#else
+            str = strdup(buf);
+#endif
             str[max_buf] = '$';
 
             uc_mem_write(uc, MK_FP(r_ds, r_dx) + 2, str, strlen(str));

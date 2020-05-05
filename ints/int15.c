@@ -1,4 +1,3 @@
-#include <curses.h>
 #include <unicorn/unicorn.h>
 #include <global.h>
 
