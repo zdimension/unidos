@@ -16,7 +16,8 @@ void path_to_string(struct dospath path, char* buf)
     if (path.depth == 0)
     {
         strcat(buf, "\\");
-    } else
+    }
+    else
     {
         for (int i = 0; i < path.depth; i++)
         {
@@ -31,20 +32,33 @@ void path_parse(char* str, struct dospath* path)
     if (str[1] == ':')
     {
         path->drive = str[0] - 'A';
-    } else
+        str += 2;
+    }
+    else
     {
         path->drive = -1;
     }
 
-    char* p = strtok(str + 2, "\\");
+    if (str[0] == '\\')
+    {
+        str++;
+    }
+
+    char* buf = malloc(strlen(str) + 1);
+    strcpy(buf, str);
+
+    char* p = strtok(buf, "\\");
     path->depth = 0;
     path->path = NULL;
 
     while (p)
     {
-        path->path = realloc(path->path, sizeof(char*) * ++path->depth);
+        if (strlen(p) != 0)
+        {
+            path->path = realloc(path->path, sizeof(char*) * ++path->depth);
 
-        path->path[path->depth - 1] = p;
+            path->path[path->depth - 1] = p;
+        }
 
         p = strtok(NULL, "\\");
     }

@@ -8,7 +8,7 @@ void set_flag_C(int flag)
 
     uc_reg_read(uc, UC_X86_REG_EFLAGS, &r_eflags);
 
-    if (flag)
+    if (!flag)
         r_eflags &= 0xfffffffe; // eflags_C = 0
     else
         r_eflags |= 1; // eflags_C = 1

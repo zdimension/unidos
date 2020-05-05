@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include "mount.h"
 #include "defs.h"
-#include "dospath.h"
 
 struct mount_point
 {
@@ -41,7 +40,7 @@ uint8_t mount_remove(uint8_t drive)
 
 uint8_t mount_add(uint8_t drive, char* path)
 {
-    printf("Adding mount point %c = %s\n", drive + 'A', path);
+    //printf("Adding mount point %c = %s\n", drive + 'A', path);
 
     for (struct mount_point* cur = mount_points; cur; cur = cur->next)
     {

@@ -14,12 +14,12 @@
 #include <fdtable.h>
 #include <psp.h>
 #include <mount.h>
+#include <intvec.h>
 
 #include "fcb.h"
 #include "../util/uc.h"
 #include "int21.h"
 #include "../global.h"
-#include "dospath.h"
 
 
 enum IOCTL_FUNC
@@ -123,7 +123,10 @@ void int21()
     uc_reg_read(uc, UC_X86_REG_AH, &r_ah);
     uc_reg_read(uc, UC_X86_REG_IP, &r_ip);
 
-    //printf(">>> 0x%x: interrupt: %x, AH = %02x\n", r_ip, 0x21, r_ah);
+    if (r_ah != 0x02)
+    {
+        dbgprintf(">>> 0x%x: interrupt: %x, AH = %02x\n", r_ip, 0x21, r_ah);
+    }
 
     rerun:
 
@@ -183,8 +186,8 @@ void int21()
 
             uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
             uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
-            //printf(">>> 0x%x: interrupt: %x, AH: %02x, DX = %02x, DS = %02x, addr = %x\n\n",
-            //        r_ip, 0x21, r_ah, r_dx, r_ds, MK_FP(r_ds, r_dx));
+            dbgprintf(">>> 0x%x: interrupt: %x, AH: %02x, DX = %02x, DS = %02x, addr = %x\n\n",
+                    r_ip, 0x21, r_ah, r_dx, r_ds, MK_FP(r_ds, r_dx));
 
             // read until '$'
             buf = read_str_till_char(MK_FP(r_ds, r_dx), '$');
@@ -223,6 +226,8 @@ void int21()
         {
             uint8_t r_al = feof(stdin) ? 0x00 : 0xff;
 
+            r_al = 0xff; // todo debug remove later
+
             uc_reg_write(uc, UC_X86_REG_AL, &r_al);
 
             break;
@@ -234,10 +239,15 @@ void int21()
 
             uc_reg_read(uc, UC_X86_REG_AL, &r_al);
 
-            printf("Invoking keyboard function %02x\n", r_al);
+            dbgprintf("Invoking keyboard function %02x\n", r_al);
 
             r_ah = r_al;
             goto rerun;
+        }
+
+        case 0x0d: // disk reset
+        {
+            break;
         }
 
         case 0x0e: // select disk
@@ -297,6 +307,46 @@ void int21()
             break;
         }
 
+        case 0x11: // search for first entry with FCB
+        {
+            uint16_t r_dx, r_ds;
+
+            uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
+            uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
+
+            struct FCB fcb;
+
+            uc_mem_read(uc, MK_FP(r_ds, r_dx), &fcb, sizeof(fcb));
+
+            uint8_t err = fcb_find_first_next(&fcb, true);
+
+            uint8_t r_al = err ? 0xFF : 0x00;
+
+            uc_reg_write(uc, UC_X86_REG_AL, &r_al);
+
+            break;
+        }
+
+        case 0x12: // search for next entry with FCB
+        {
+            uint16_t r_dx, r_ds;
+
+            uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
+            uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
+
+            struct FCB fcb;
+
+            uc_mem_read(uc, MK_FP(r_ds, r_dx), &fcb, sizeof(fcb));
+
+            uint8_t err = fcb_find_first_next(&fcb, false);
+
+            uint8_t r_al = err ? 0xFF : 0x00;
+
+            uc_reg_write(uc, UC_X86_REG_AL, &r_al);
+
+            break;
+        }
+
         case 0x13: // delete file with FCB
         {
             uint16_t r_dx, r_ds;
@@ -345,7 +395,8 @@ void int21()
             void* buf = malloc(size);
             memset(buf, 0, size);
 
-            printf("Attempting to read %d records (%ld bytes) from FD %d at record %d\n", r_cx, size, host_fd, fcb.relative_record_number);
+            dbgprintf("Attempting to read %d records (%ld bytes) from FD %d at record %d\n", r_cx, size, host_fd,
+                   fcb.relative_record_number);
 
             //lseek(host_fd, fcb.relative_record_number * fcb.record_size, SEEK_SET);
 
@@ -363,7 +414,7 @@ void int21()
             uc_reg_write(uc, UC_X86_REG_AL, &r_al);
             uc_reg_write(uc, UC_X86_REG_CX, &r_cx);
 
-            printf("%d records read (%ld bytes)\n", r_cx, num);
+            dbgprintf("%d records read (%ld bytes)\n", r_cx, num);
 
             break;
         }
@@ -397,7 +448,24 @@ void int21()
             uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
             uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
 
-            printf("[Unimpl] Set interrupt vector %02x @ %04x:%04x\n", r_al, r_ds, r_dx);
+            intvec_set(r_al, r_ds, r_dx);
+
+            break;
+        }
+
+        case 0x35: // get interrupt vector
+        {
+            uint8_t r_al;
+
+            uc_reg_read(uc, UC_X86_REG_AL, &r_al);
+
+            struct interrupt* handler = intvec_find(r_al);
+
+            uint16_t r_es = handler->seg;
+            uint16_t r_bx = handler->off;
+
+            uc_reg_write(uc, UC_X86_REG_ES, &r_es);
+            uc_reg_write(uc, UC_X86_REG_BX, &r_bx);
 
             break;
         }
@@ -408,7 +476,7 @@ void int21()
 
             uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
 
-            printf("Creating a new PSP @ seg %04x\n", r_dx);
+            dbgprintf("Creating a new PSP @ seg %04x\n", r_dx);
 
             psp_create(r_dx);
             psp_copy(current_proc_seg, r_dx);
@@ -443,7 +511,8 @@ void int21()
             if (res.drive != -1)
             {
                 cur_drive = res.drive;
-            } else
+            }
+            else
             {
                 res.drive = cur_drive;
             }
@@ -466,7 +535,7 @@ void int21()
 
             // read until '$'
             fname = read_str_till_char(MK_FP(r_ds, r_dx), '$');
-            //printf(">>> Trying to create a new file '%s'\n", fname);
+            dbgprintf(">>> Trying to create a new file '%s'\n", fname);
 
             char fixed[512];
             mount_str_to_real(fname, fixed);
@@ -476,7 +545,8 @@ void int21()
             {   // failed to open
                 set_flag_C(1);
                 tmp = errno;    // FIXME
-            } else
+            }
+            else
             {
                 int dosfd = fdtable_set(hostfd);
                 if (dosfd < 0)
@@ -485,14 +555,43 @@ void int21()
                     close(hostfd);
                     set_flag_C(1);
                     tmp = ENFILE;
-                } else
+                }
+                else
                 {
                     set_flag_C(0);
                     tmp = dosfd;
-                    //printf(">>> OK, dosfd = %u\n", dosfd);
+                    dbgprintf(">>> OK, dosfd = %u\n", dosfd);
                 }
             }
             uc_reg_write(uc, UC_X86_REG_AX, &tmp);
+
+            break;
+        }
+
+        case 0x37: // get/set switch character
+        {
+            uint8_t r_al, r_dl;
+
+            uc_reg_read(uc, UC_X86_REG_AL, &r_al);
+            uc_reg_read(uc, UC_X86_REG_DL, &r_dl);
+
+            switch(r_al)
+            {
+                case 0:
+                    r_dl = switch_character;
+                    break;
+
+                case 1:
+                    switch_character = r_dl;
+                    break;
+
+                default:
+                    r_al = 0xFF;
+                    break;
+            }
+
+            uc_reg_write(uc, UC_X86_REG_AL, &r_al);
+            uc_reg_write(uc, UC_X86_REG_DL, &r_dl);
 
             break;
         }
@@ -510,30 +609,38 @@ void int21()
 
             // read until '$'
             fname = read_str_till_char(MK_FP(r_ds, r_dx), '$');
-            //printf(">>> Trying to open file '%s'\n", fname);
+
             char fixed[512];
             mount_str_to_real(fname, fixed);
+
+            dbgprintf(">>> Trying to open file '%s' / '%s'\n", fname, fixed);
+
             hostfd = open(fixed, r_al & 3);
             if (hostfd < 0)
             {   // failed to open
                 set_flag_C(1);
                 tmp = errno;    // FIXME
-            } else
+                dbgprintf("error: %d\n", tmp);
+            }
+            else
             {
                 int dosfd = fdtable_set(hostfd);
                 if (dosfd < 0)
                 {
+                    dbgprintf("full\n");
                     // system table is full
                     close(hostfd);
                     set_flag_C(1);
                     tmp = ENFILE;
-                } else
+                }
+                else
                 {
                     set_flag_C(0);
                     tmp = dosfd;
-                    //printf(">>> OK, dosfd = %u\n", dosfd);
+                    dbgprintf(">>> OK, dosfd = %u\n", dosfd);
                 }
             }
+            dbgprintf("%04x (host %d)\n", tmp, hostfd);
             uc_reg_write(uc, UC_X86_REG_AX, &tmp);
 
             break;
@@ -559,13 +666,14 @@ void int21()
             {
                 set_flag_C(1);
                 r_ax = errno;   // FIXME
-            } else
+            }
+            else
             {
                 set_flag_C(0);
                 fdtable_clear(r_bx);
             }
 
-            //printf(">>> closed file = %u\n", r_bx);
+            dbgprintf(">>> closed file = %u\n", r_bx);
 
             break;
         }
@@ -591,14 +699,15 @@ void int21()
             uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
             uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
 
-            //printf(">>> trying to read from devide = %u, len = %u\n", r_bx, r_cx);
+            dbgprintf(">>> trying to read from devide = %u, len = %u\n", r_bx, r_cx);
             count = read(fd, buf, r_cx);
             if (count < 0)
             {
                 // failed to read
                 set_flag_C(1);
                 r_ax = errno;   // FIXME
-            } else
+            }
+            else
             {
                 // copy read memory to emulator memory
                 uc_mem_write(uc, MK_FP(r_ds, r_dx), buf, count);
@@ -620,7 +729,7 @@ void int21()
 
             // write to FD in BX register
             uc_reg_read(uc, UC_X86_REG_BX, &r_bx);
-            //printf(">>> trying to write to devide = %u\n", r_bx);
+            dbgprintf(">>> trying to write to device = %u\n", r_bx);
             fd = fdtable_get(r_bx);
             if (fd < 0)
             {
@@ -635,7 +744,7 @@ void int21()
             uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
 
             buf = read_str(MK_FP(r_ds, r_dx), r_cx);
-            //printf("%s", buf);
+            dbgprintf("%s", buf);
 
             count = write(fd, buf, r_cx);
             if (count < 0)
@@ -643,7 +752,8 @@ void int21()
                 // failed to write
                 set_flag_C(1);
                 r_ax = errno;   // FIXME
-            } else
+            }
+            else
             {
                 set_flag_C(0);
                 r_ax = count;
@@ -664,7 +774,7 @@ void int21()
 
             // read until '$'
             fname = read_str_till_char(MK_FP(r_ds, r_dx), '$');
-            //printf(">>> Trying to delete file '%s'\n", fname);
+            dbgprintf(">>> Trying to delete file '%s'\n", fname);
             char fixed[512];
             mount_str_to_real(fname, fixed);
             if (unlink(fixed))
@@ -672,7 +782,8 @@ void int21()
                 set_flag_C(1);
                 r_ax = errno;
                 uc_reg_write(uc, UC_X86_REG_AX, &r_ax);
-            } else
+            }
+            else
             {
                 set_flag_C(0);
             }
@@ -702,22 +813,23 @@ void int21()
             uc_reg_read(uc, UC_X86_REG_AL, &r_al);
 
             offset = lseek(fd, (r_cx << 16) | r_dx, r_al);
-            //printf(">>> trying to seek in devide = %u, offset = %u, where = %u\n", r_bx, offset, r_al);
+            dbgprintf(">>> trying to seek in devide = %u, offset = %lu, where = %u\n", r_bx, offset, r_al);
             if (offset < 0)
             {
                 // fail to seek
                 set_flag_C(1);
                 r_ax = errno;   // FIXME
                 uc_reg_write(uc, UC_X86_REG_AX, &r_ax);
-                //printf(">>> FAILED\n");
-            } else
+                dbgprintf(">>> FAILED\n");
+            }
+            else
             {
                 set_flag_C(0);
                 r_ax = offset & 0xffff;
                 r_dx = offset >> 16;
                 uc_reg_write(uc, UC_X86_REG_AX, &r_ax);
                 uc_reg_write(uc, UC_X86_REG_DX, &r_dx);
-                //printf(">>> OK\n");
+                dbgprintf(">>> OK\n");
             }
 
             break;
@@ -767,7 +879,8 @@ void int21()
 
                         r_dx |= IOCTL_IS_CHAR;
                         r_dx |= IOCTL_SUPPORTS_IOCTL;
-                    } else if (S_ISBLK(stat.st_mode))
+                    }
+                    else if (S_ISBLK(stat.st_mode))
                     {
 
                     }
@@ -826,8 +939,10 @@ void int21()
             uint8_t r_al;
 
             uc_reg_read(uc, UC_X86_REG_AL, &r_al);
-            printf(">>> 0x%x: interrupt: %x, AH: %02x = EXIT. quit with code = %02x!\n\n",
-                   r_ip, 0x21, r_ah, r_al);
+            /*printf(">>> 0x%x: interrupt: %x, AH: %02x = EXIT. quit with code = %02x!\n\n",
+                   r_ip, 0x21, r_ah, r_al);*/
+
+            exit_code = r_al;
 
             uc_emu_stop(uc);
             break;
@@ -837,7 +952,7 @@ void int21()
         {
             uint32_t r_eflags;
 
-            //printf(">>> UNIMPLEMENTED datetime\n");
+            dbgprintf(">>> UNIMPLEMENTED datetime\n");
             uc_reg_read(uc, UC_X86_REG_EFLAGS, &r_eflags);
             r_eflags &= 0xfffffffe; // eflags_C = 0
             uc_reg_write(uc, UC_X86_REG_EFLAGS, &r_eflags);
@@ -886,7 +1001,8 @@ void int21()
             if (n == -1) // invalid date
             {
                 r_al = 0xFF;
-            } else
+            }
+            else
             {
                 time_offset = n - t;
             }
@@ -940,7 +1056,8 @@ void int21()
             if (n == -1) // invalid date
             {
                 r_al = 0xFF;
-            } else
+            }
+            else
             {
                 time_offset = n - t;
             }
@@ -1041,7 +1158,8 @@ void int21()
                 set_flag_C(1);
 
                 r_ax = err;
-            } else
+            }
+            else
             {
                 set_flag_C(0);
             }
@@ -1063,7 +1181,8 @@ void int21()
                 set_flag_C(1);
 
                 r_ax = err;
-            } else
+            }
+            else
             {
                 set_flag_C(0);
             }
@@ -1085,7 +1204,8 @@ void int21()
                 set_flag_C(1);
 
                 r_ax = err;
-            } else
+            }
+            else
             {
                 set_flag_C(0);
             }
@@ -1102,7 +1222,7 @@ void int21()
 
             uc_reg_read(uc, UC_X86_REG_BX, &r_bx);
 
-            printf("Setting current PSP to %04x\n", r_bx);
+            dbgprintf("Setting current PSP to %04x\n", r_bx);
 
             current_proc_seg = r_bx;
 
@@ -1116,6 +1236,119 @@ void int21()
             uc_reg_write(uc, UC_X86_REG_BX, &r_bx);
 
             break;
+        }
+
+        case 0x65: // get extended country information
+        {
+            uint8_t r_al, r_dl, r_dh;
+            uint16_t r_ax = 0, r_bx, r_cx, r_dx, r_es, r_di, r_ds;
+
+            uc_reg_read(uc, UC_X86_REG_AL, &r_al);
+
+            uc_reg_read(uc, UC_X86_REG_BX, &r_bx);
+            uc_reg_read(uc, UC_X86_REG_CX, &r_cx);
+            uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
+
+            uc_reg_read(uc, UC_X86_REG_DL, &r_dl);
+            uc_reg_read(uc, UC_X86_REG_DH, &r_dh);
+
+            uc_reg_read(uc, UC_X86_REG_ES, &r_es);
+            uc_reg_read(uc, UC_X86_REG_DI, &r_di);
+            uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
+
+            switch (r_al)
+            {
+                case 0x01: // get extended country information
+                {
+                    struct i65_extended_country_info info;
+                    info.id = 0x01;
+                    info.size = 38;
+                    info.country_id = CID_UNITED_STATES;
+                    info.code_page = 437;
+                    info.country_data.date_format = DATE_MDY;
+                    strcpy(info.country_data.currency_symbol, "$");
+                    strcpy(info.country_data.thousands_sep, ",");
+                    strcpy(info.country_data.decimal_sep, ".");
+                    strcpy(info.country_data.date_sep, "-");
+                    strcpy(info.country_data.time_sep, ":");
+                    info.country_data.currency_symbol_loc = CUR_SYMBOL_BEFORE;
+                    info.country_data.currency_decimal_places = 2;
+                    info.country_data.time_format = TIME_12H;
+                    info.country_data.ext_ascii_map_address = 0; // TODO
+                    strcpy(info.country_data.list_sep, ";");
+                    memset(info.country_data.reserved, 0, 10);
+
+                    //uc_mem_write(uc, MK_FP(r_ds, r_si), buf + 2, 64);
+                }
+
+                case 0x02: // get pointer to character translation table
+                {
+                    goto unimpl;
+                }
+
+                case 0x04: // get pointer to filename character translation table
+                {
+                    goto unimpl;
+                }
+
+                case 0x05: // get pointer to filename terminator table
+                {
+                    goto unimpl;
+                }
+
+                case 0x06: // get pointer to collating sequence
+                {
+                    goto unimpl;
+                }
+
+                case 0x07: // get segment of DCBS vector (DOS 4.x)
+                {
+                    goto unimpl;
+                }
+
+                case 0x20: // country dependant character capitalization (DOS 4+)
+                {
+                    goto unimpl;
+                }
+
+                case 0x21: // country dependant string capitalization (DOS 4+)
+                {
+                    goto unimpl;
+                }
+
+                case 0x22: // country dependant ASCIIZ string capitalization (DOS 4+)
+                {
+                    goto unimpl;
+                }
+
+                case 0x23: // determine if character represents country relative Yes or No response (DOS 4+)
+                {
+                    goto unimpl;
+                }
+
+                case 0xA0: // country dependant filename character capitalization (DOS 4+)
+                {
+                    goto unimpl;
+                }
+
+                case 0xA1: // country dependant filename string capitalization (DOS 4+)
+                {
+                    goto unimpl;
+                }
+
+                case 0xA2: // country dependant ASCIIZ filename capitalization (DOS 4+)
+                {
+                    goto unimpl;
+                }
+
+                unimpl:
+                {
+                    printf("int 0x21 subfunction %02x unimplemented!\n", r_al);
+                    break;
+                };
+            }
+
+            uc_reg_write(uc, UC_X86_REG_AX, &r_ax);
         }
     }
 }

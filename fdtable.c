@@ -8,19 +8,22 @@ void fdtable_init(void)
     int i;
 
     // enable special fd
-    fdtable[0] = 0;
-    fdtable[1] = 1;
-    fdtable[2] = 2;
+    fdtable[0] = 0; // STDIN
+    fdtable[1] = 1; // STDOUT
+    fdtable[2] = 2; // STDERR
+
+    fdtable[3] = 1; // STDAUX --> STDOUT
+    fdtable[4] = 1; // STDPRN --> STDOUT
 
     // disable other fd
-    for (i = 3; i < FD_TABLE_SIZE; i++)
+    for (i = 5; i < FD_TABLE_SIZE; i++)
         fdtable[i] = -1;
 }
 
 // clear FD
 void fdtable_clear(int fd)
 {
-    if (fd < 3 || fd >= FD_TABLE_SIZE)
+    if (fd < 5 || fd >= FD_TABLE_SIZE)
         return;
 
     fdtable[fd] = -1;

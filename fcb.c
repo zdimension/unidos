@@ -55,14 +55,15 @@ uint8_t fcb_close(struct FCB* fcb)
 
 uint8_t fcb_open(struct FCB* fcb)
 {
-    printf("Opening FCB / %d (%c:) / %.8s.%.3s\n", fcb->drive, fix_drive(fcb->drive) + 'A', fcb->filename,
+    dbgprintf("Opening FCB / %d (%c:) / %.8s.%.3s\n", fcb->drive, fix_drive(fcb->drive) + 'A', fcb->filename,
            fcb->extension);
 
     for (struct FCB_map* cur = FCB_items; cur; cur = cur->next)
     {
         if (fcb_matches(fcb, cur))
         {
-            printf("File already open\n");
+            return ERR_SUCCESS;
+            dbgprintf("File already open\n");
             return ERR_UNABLE_TO_COMPLETE_FILE_OPERATION;
         }
     }
@@ -70,17 +71,17 @@ uint8_t fcb_open(struct FCB* fcb)
     char fname[16];
     fcb_filename(fcb, fname);
 
-    printf("Absolute filename: %s\n", fname);
+    dbgprintf("Absolute filename: %s\n", fname);
 
     char fixed[512];
     mount_str_to_real(fname, fixed);
 
-    printf("Real filename: %s\n", fixed);
+    dbgprintf("Real filename: %s\n", fixed);
 
     int host_fd = open(fixed, O_RDWR);
     if (host_fd < 0)
     {   // failed to open
-        printf("Unable to open file\n");
+        dbgprintf("Unable to open file\n");
         return ERR_UNABLE_TO_COMPLETE_FILE_OPERATION;
     }
 
@@ -119,7 +120,7 @@ void fcb_filename(struct FCB* fcb, char* fname)
     fname[2] = '\\';
     strncat(fname, fcb->filename, 8);
 
-    for(int i = 10; i >= 4; i--)
+    for (int i = 10; i >= 4; i--)
     {
         if (fname[i] != ' ')
             break;
@@ -129,7 +130,7 @@ void fcb_filename(struct FCB* fcb, char* fname)
     strcat(fname, ".");
     strncat(fname, fcb->extension, 3);
 
-    for(int i = 14; i >= 12; i--)
+    for (int i = 14; i >= 12; i--)
     {
         if (fname[i] != ' ')
             break;
@@ -147,5 +148,10 @@ int fcb_get_fd(struct FCB* fcb)
         }
     }
 
+    return -1;
+}
+
+uint8_t fcb_find_first_next(struct FCB* fcb, bool first)
+{
     return -1;
 }

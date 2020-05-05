@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <unicorn/unicorn.h>
+#include <string.h>
 #include "mem.h"
 #include "global.h"
 #include "defs.h"
@@ -34,6 +35,7 @@ uint8_t mem_free(uint16_t seg)
             {
                 printf("Failed to free memory block!\n");
                 print_uc_err(err);
+                free(cur);
                 return ERR_INSUFFICIENT_MEMORY;
             }
 
@@ -49,6 +51,8 @@ uint8_t mem_free(uint16_t seg)
 uint8_t mem_alloc(uint16_t size, uint16_t* seg)
 {
     uint32_t addr = 0x10000;
+
+    size = ALIGN(size, 4096);
 
     do
     {
@@ -78,13 +82,15 @@ uint8_t mem_alloc(uint16_t size, uint16_t* seg)
 
     struct mem_block* blk = malloc(sizeof(struct mem_block));
 
+    memset(blk, 0, sizeof(struct mem_block));
+
     blk->segment = addr >> 4;
     blk->size = size;
 
     uc_err err = uc_mem_map(uc, blk->segment << 4, blk->size, UC_PROT_ALL);
     if (err)
     {
-        printf("Failed to allocate memory block!\n");
+        printf("Failed to allocate memory block with size %04x\n", size);
         print_uc_err(err);
         return ERR_INSUFFICIENT_MEMORY;
     }
