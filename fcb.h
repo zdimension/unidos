@@ -4,6 +4,7 @@
 #pragma pack(push, 1)
 
 #include <stdint.h>
+#include "global.h"
 
 struct FCB
 {
@@ -40,5 +41,7 @@ uint8_t fcb_open(struct FCB* fcb);
 void fcb_filename(struct FCB* fcb, char* buf);
 
 int fcb_get_fd(struct FCB* fcb);
+
+uint8_t fcb_find_first_next(struct FCB* fcb, bool first);
 
 #endif

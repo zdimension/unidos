@@ -15,8 +15,9 @@ extern time_t time_offset;
 extern bool verify_switch;
 extern bool ctrl_break_check;
 extern bool ext_ctrl_break_check;
-
+extern uint8_t exit_code;
 extern uint16_t current_proc_seg;
+extern char switch_character;
 
 const time_t time_fix();
 

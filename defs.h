@@ -84,4 +84,79 @@ enum DOS_ERROR
     ERR_REQUIRED_SYSTEM_COMPONENT_NOT_INSTALLED = 0x5A
 };
 
+enum DOS_DATE_FORMAT
+{
+    DATE_MDY = 0,
+    DATE_DMY = 1,
+    DATE_YMD = 2
+};
+
+enum DOS_CURRENCY_FORMAT
+{
+    CUR_SYMBOL_BEFORE = 0,
+    CUR_SYMBOL_AFTER = 1,
+    CUR_SYMBOL_BEFORE_SPACE = 2,
+    CUR_SYMBOL_AFTER_SPACE = 3,
+    CUR_SYMBOL_REPLACE_DECIMAL = 4
+};
+
+enum DOS_TIME_FORMAT
+{
+    TIME_12H = 0,
+    TIME_24H = 1
+};
+
+#pragma pack(push, 1)
+struct dos_country_data
+{
+    uint16_t date_format;
+    char currency_symbol[5];
+    char thousands_sep[2];
+    char decimal_sep[2];
+    char date_sep[2];
+    char time_sep[2];
+    uint8_t currency_symbol_loc;
+    uint8_t currency_decimal_places;
+    uint8_t time_format;
+    uint32_t ext_ascii_map_address;
+    char list_sep[2];
+    uint8_t reserved[10];
+};
+#pragma pack(pop)
+
+enum DOS_COUNTRY_ID
+{
+    CID_BELGIUM = 32,
+    CID_BRAZIL = 55,
+    CID_CANADIAN_FRENCH = 2,
+    CID_CROATIA = 38,
+    CID_CZECH_REPUBLIC = 42,
+    CID_DENMARK = 45,
+    CID_FINLAND = 358,
+    CID_FRANCE = 33,
+    CID_GERMANY = 49,
+    CID_HUNGARY = 36,
+    CID_INT_ENGLISH = 61,
+    CID_ITALY = 39,
+    CID_LATIN_AMERICA = 3,
+    CID_NETHERLANDS = 31,
+    CID_NORWAY = 47,
+    CID_POLAND = 48,
+    CID_PORTUGAL = 351,
+    CID_SERBIA_YUGOSLAVIA = 38,
+    CID_SLOVAKIA = 42,
+    CID_SLOVENIA = 38,
+    CID_SPAIN = 34,
+    CID_SWEDEN = 46,
+    CID_SWITZERLAND = 41,
+    CID_UNITED_KINGDOM = 44,
+    CID_UNITED_STATES = 1,
+};
+
+#if DBGPRINT || true
+#define dbgprintf printf
+#else
+#define dbgprintf (void)sizeof
+#endif
+
 #endif

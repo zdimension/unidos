@@ -2,16 +2,12 @@
 /* By Nguyen Anh Quynh, 2015 */
 
 #include <unicorn/unicorn.h>
-#include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
-#include <inttypes.h>
-
-#include <stddef.h> // offsetof()
 
 #include "ints/ints.h"
 #include "global.h"
 #include "psp.h"
+#include "intvec.h"
 
 #define DOS_ADDR 0x100
 
@@ -32,6 +28,17 @@ void hook_intr(uc_engine* uc, uint32_t intno, void* user_data)
     uc_reg_read(uc, UC_X86_REG_AH, &r_ah);
 
     // only handle DOS interrupt
+
+    struct interrupt* custom_handler = intvec_find(intno);
+
+    if (custom_handler)
+    {
+        printf(">>> 0x%x: using custom handler at %04x:%04x for interrupt %02x\n", r_ip, custom_handler->seg,
+               custom_handler->off, intno);
+        r_ip = MK_FP(custom_handler->seg, custom_handler->off);
+        uc_reg_write(uc, UC_ARM_REG_IP, &r_ip);
+        return;
+    }
 
     switch (intno)
     {
@@ -129,5 +136,5 @@ int main(int argc, char** argv)
 
     uc_close(uc);
 
-    return 0;
+    return exit_code;
 }

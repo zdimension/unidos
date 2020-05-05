@@ -1,9 +1,5 @@
 #include "global.h"
-#include <stdint.h>
-#include <stddef.h>
 #include <time.h>
-#include <sys/time.h>
-#include "dospath.h"
 #include "fdtable.h"
 #include "mount.h"
 
@@ -13,7 +9,8 @@ time_t time_offset = 0;
 bool verify_switch = false;
 bool ctrl_break_check = false;
 bool ext_ctrl_break_check = false;
-
+uint8_t exit_code = 0;
+char switch_character = '/';
 uint16_t current_proc_seg = 0;
 
 const time_t time_fix()
@@ -32,7 +29,7 @@ void global_init()
     fdtable_init();
 
     mount_add(DRIVE_A, "dos/v11object/");
-    mount_add(DRIVE_C, ".");
+    mount_add(DRIVE_C, "root/");
 }
 
 void print_uc_err(uc_err err)
