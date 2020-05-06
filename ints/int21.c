@@ -1343,7 +1343,7 @@ void int21()
 
                 unimpl:
                 {
-                    printf("int 0x21 subfunction %02x unimplemented!\n", r_al);
+                    printf("int 0x21, 0x65 (extended country information) subfunction %02x unimplemented!\n", r_al);
                     break;
                 };
             }
