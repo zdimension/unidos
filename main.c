@@ -73,10 +73,28 @@ int main(int argc, char** argv)
     uint8_t fcontent[64 * 1024];    // 64KB for .COM file
     long fsize;
 
+    char* pname = argv[0];
+
     if (argc == 1)
     {
-        usage(argv[0]);
+        usage(pname);
         return -1;
+    }
+
+    bool verbose = false;
+
+    if (strcmp(argv[1], "-v") == 0)
+    {
+        verbose = true;
+        dbgprintf = printf;
+        argv++;
+        argc--;
+
+        if (argc == 1)
+        {
+            usage(pname);
+            return -1;
+        }
     }
 
     fname = argv[1];

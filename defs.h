@@ -2,6 +2,8 @@
 #define UNIDOS_DEFS_H
 
 // real-mode far pointer created from segment & offset
+#include <stdint.h>
+
 #define MK_FP(SEG, OFF) (((SEG) << 4) + (OFF))
 
 #define MIN(a, b) ((a) < (b)? (a) : (b))
@@ -153,10 +155,12 @@ enum DOS_COUNTRY_ID
     CID_UNITED_STATES = 1,
 };
 
-#if DBGPRINT || true
+/*#if DBGPRINT || true
 #define dbgprintf printf
 #else
 #define dbgprintf (void)sizeof
-#endif
+#endif*/
+
+extern int (*dbgprintf)(const char *__restrict __format, ...);
 
 #endif
