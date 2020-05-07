@@ -36,14 +36,14 @@ void hook_intr(uc_engine* uc, uint32_t intno, void* user_data)
         printf(">>> 0x%x: using custom handler at %04x:%04x for interrupt %02x\n", r_ip, custom_handler->seg,
                custom_handler->off, intno);
         r_ip = MK_FP(custom_handler->seg, custom_handler->off);
-        uc_reg_write(uc, UC_ARM_REG_IP, &r_ip);
+        uc_reg_write(uc, UC_X86_REG_IP, &r_ip);
         return;
     }
 
     switch (intno)
     {
         default:
-            printf(">>> 0x%x: interrupt: %x, function %x\n", r_ip, intno, r_ah);
+            printf(">>> 0x%x: unknown interrupt: %x, function %x\n", r_ip, intno, r_ah);
             break;
         case 0x05:
             break;
@@ -72,6 +72,8 @@ int main(int argc, char** argv)
     FILE* f;
     uint8_t fcontent[64 * 1024];    // 64KB for .COM file
     long fsize;
+
+    setbuf(stdout, NULL);
 
     char* pname = argv[0];
 
