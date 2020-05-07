@@ -115,6 +115,11 @@ struct dos_country_data
     char currency_symbol[5];
     char thousands_sep[2];
     char decimal_sep[2];
+};
+
+struct dos_country_data_new
+{
+    struct dos_country_data base_data;
     char date_sep[2];
     char time_sep[2];
     uint8_t currency_symbol_loc;

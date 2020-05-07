@@ -11,7 +11,7 @@ struct i65_extended_country_info
     uint16_t size;
     uint16_t country_id;
     uint16_t code_page;
-    struct dos_country_data country_data;
+    struct dos_country_data_new country_data;
 };
 
 struct i65_char_table
