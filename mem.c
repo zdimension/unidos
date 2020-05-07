@@ -80,9 +80,7 @@ uint8_t mem_alloc(uint16_t size, uint16_t* seg)
         break;
     } while (true);
 
-    struct mem_block* blk = malloc(sizeof(struct mem_block));
-
-    memset(blk, 0, sizeof(struct mem_block));
+    struct mem_block* blk = calloc(1, sizeof(struct mem_block));
 
     blk->segment = addr >> 4;
     blk->size = size;

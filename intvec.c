@@ -52,8 +52,7 @@ uint8_t intvec_set(uint8_t interrupt, uint16_t seg, uint16_t off)
 
     if (!intp)
     {
-        intp = malloc(sizeof(struct interrupt));
-        memset(intp, 0, sizeof(struct interrupt));
+        intp = calloc(1, sizeof(struct interrupt));
         intp->interrupt = interrupt;
     }
 

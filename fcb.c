@@ -85,8 +85,7 @@ uint8_t fcb_open(struct FCB* fcb)
         return ERR_UNABLE_TO_COMPLETE_FILE_OPERATION;
     }
 
-    struct FCB_map* map = malloc(sizeof(struct FCB_map));
-    memset(map, 0, sizeof(struct FCB_map));
+    struct FCB_map* map = calloc(1, sizeof(struct FCB_map));
 
     map->drive = fcb->drive;
     memcpy(map->filename, fcb->filename, 8);
