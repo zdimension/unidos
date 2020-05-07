@@ -51,8 +51,7 @@ uint8_t mount_add(uint8_t drive, char* path)
         }
     }
 
-    struct mount_point* pnt = malloc(sizeof(struct mount_point));
-    memset(pnt, 0, sizeof(struct mount_point));
+    struct mount_point* pnt = calloc(1, sizeof(struct mount_point));
     pnt->drive = drive;
     strcpy(pnt->path, path);
 
