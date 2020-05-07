@@ -63,8 +63,110 @@ enum IOCTL_INFO
     IOCTL_RESERVED_3 = 1 << 15,
 
     IOCTL_NON_UPDATE_DATE = 1 << 14,
-    IOCTL_REMOTE = 1 << 5
+    IOCTL_REMOTE = 1 << 15
 };
+
+const char* int_names[] =
+        {
+                "ABORT",
+                "STD_CON_INPUT",
+                "STD_CON_OUTPUT",
+                "STD_AUX_INPUT",
+                "STD_AUX_OUTPUT",
+                "STD_PRINTER_OUTPUT",
+                "RAW_CON_IO",
+                "RAW_CON_INPUT",
+                "STD_CON_INPUT_NO_ECHO",
+                "STD_CON_STRING_OUTPUT",
+                "STD_CON_STRING_INPUT",
+                "STD_CON_INPUT_STATUS",
+                "STD_CON_INPUT_FLUSH",
+                "DISK_RESET",
+                "SET_DEFAULT_DRIVE",
+                "FCB_OPEN",
+                "FCB_CLOSE",
+                "DIR_SEARCH_FIRST",
+                "DIR_SEARCH_NEXT",
+                "FCB_DELETE",
+                "FCB_SEQ_READ",
+                "FCB_SEQ_WRITE",
+                "FCB_CREATE",
+                "FCB_RENAME",
+                "***",
+                "GET_DEFAULT_DRIVE",
+                "SET_DMA",
+                "***",
+                "***",
+                "***",
+                "***",
+                "GET_DEFAULT_DPB",
+                "***",
+                "FCB_RANDOM_READ",
+                "FCB_RANDOM_WRITE",
+                "GET_FCB_FILE_LENGTH",
+                "GET_FCB_POSITION",
+                "SET_INTERRUPT_VECTOR",
+                "CREATE_PROCESS_DATA_BLOCK",
+                "FCB_RANDOM_READ_BLOCK",
+                "FCB_RANDOM_WRITE_BLOCK",
+                "PARSE_FILE_DESCRIPTOR",
+                "GET_DATE",
+                "SET_DATE",
+                "GET_TIME",
+                "SET_TIME",
+                "SET_VERIFY_ON_WRITE",
+                "GET_DMA",
+                "GET_VERSION",
+                "KEEP_PROCESS",
+                "GET_DPB",
+                "SET_CTRL_C_TRAPPING",
+                "GET_INDOS_FLAG",
+                "GET_INTERRUPT_VECTOR",
+                "GET_DRIVE_FREESPACE",
+                "CHAR_OPER",
+                "INTERNATIONAL",
+                "MKDIR",
+                "RMDIR",
+                "CHDIR",
+                "CREAT",
+                "OPEN",
+                "CLOSE",
+                "READ",
+                "WRITE",
+                "UNLINK",
+                "LSEEK",
+                "CHMOD",
+                "IOCTL",
+                "XDUP",
+                "XDUP2",
+                "CURRENT_DIR",
+                "ALLOC",
+                "DEALLOC",
+                "SETBLOCK",
+                "EXEC",
+                "EXIT",
+                "WAIT",
+                "FIND_FIRST",
+                "FIND_NEXT",
+                "SET_CURRENT_PDB",
+                "GET_CURRENT_PDB",
+                "GET_IN_VARS",
+                "SETDPB",
+                "GET_VERIFY_ON_WRITE",
+                "DUP_PDB",
+                "RENAME",
+                "FILE_TIMES",
+        };
+
+static const char* get_int_name(uint8_t inum)
+{
+    const uint8_t imax = sizeof(int_names) / sizeof(const char*);
+
+    if (inum >= imax)
+        return "***";
+
+    return int_names[inum];
+}
 
 static uint8_t str_buf[1024];   // buffer for reading string from memory
 static uint16_t dta = 0x80;    // disk transfer area address
@@ -125,7 +227,7 @@ void int21()
 
     if (r_ah != 0x02)
     {
-        dbgprintf(">>> 0x%x: interrupt: %x, AH = %02x\n", r_ip, 0x21, r_ah);
+        dbgprintf(">>> 0x%x: interrupt: %x, AH = %02x [%s]\n", r_ip, 0x21, r_ah, get_int_name(r_ah));
     }
 
     rerun:
@@ -186,7 +288,7 @@ void int21()
 
             uc_reg_read(uc, UC_X86_REG_DX, &r_dx);
             uc_reg_read(uc, UC_X86_REG_DS, &r_ds);
-            dbgprintf(">>> 0x%x: interrupt: %x, AH: %02x, DX = %02x, DS = %02x, addr = %x\n\n",
+            dbgprintf(">>> write to screen, DX = %02x, DS = %02x, addr = %x\n\n",
                     r_ip, 0x21, r_ah, r_dx, r_ds, MK_FP(r_ds, r_dx));
 
             // read until '$'
@@ -392,8 +494,7 @@ void int21()
             int host_fd = fcb_get_fd(&fcb);
 
             size_t size = r_cx * fcb.record_size;
-            void* buf = malloc(size);
-            memset(buf, 0, size);
+            void* buf = calloc(size, 1);
 
             dbgprintf("Attempting to read %d records (%ld bytes) from FD %d at record %d\n", r_cx, size, host_fd,
                    fcb.relative_record_number);
@@ -1112,6 +1213,11 @@ void int21()
             uc_reg_write(uc, UC_X86_REG_DL, &r_dl);
         }
 
+        /*case 0x38: // get country information
+        {
+
+        }*/
+
         case 0x47: // get current directory
         {
             uint8_t r_dl;
@@ -1131,8 +1237,7 @@ void int21()
             else
                 r_dl--;
 
-            char* buf = malloc(66);
-            memset(buf, 0, 66);
+            char* buf = calloc(66, 1);
             path_to_string(cur_path[r_dl], buf);
 
             uint16_t r_ds, r_si;
@@ -1265,10 +1370,10 @@ void int21()
                     info.size = 38;
                     info.country_id = CID_UNITED_STATES;
                     info.code_page = 437;
-                    info.country_data.date_format = DATE_MDY;
-                    strcpy(info.country_data.currency_symbol, "$");
-                    strcpy(info.country_data.thousands_sep, ",");
-                    strcpy(info.country_data.decimal_sep, ".");
+                    info.country_data.base_data.date_format = DATE_MDY;
+                    strcpy(info.country_data.base_data.currency_symbol, "$");
+                    strcpy(info.country_data.base_data.thousands_sep, ",");
+                    strcpy(info.country_data.base_data.decimal_sep, ".");
                     strcpy(info.country_data.date_sep, "-");
                     strcpy(info.country_data.time_sep, ":");
                     info.country_data.currency_symbol_loc = CUR_SYMBOL_BEFORE;
@@ -1278,7 +1383,7 @@ void int21()
                     strcpy(info.country_data.list_sep, ";");
                     memset(info.country_data.reserved, 0, 10);
 
-                    //uc_mem_write(uc, MK_FP(r_ds, r_si), buf + 2, 64);
+                    uc_mem_write(uc, MK_FP(r_es, r_di), &info.size, 64);
                 }
 
                 case 0x02: // get pointer to character translation table
