@@ -43,7 +43,7 @@ void hook_intr(uc_engine* uc, uint32_t intno, void* user_data)
     switch (intno)
     {
         default:
-            printf(">>> 0x%x: unknown interrupt: %x, function %x\n", r_ip, intno, r_ah);
+            printf(">>> 0x%x: unknown interrupt: %02x, function %02x\n", r_ip, intno, r_ah);
             break;
         case 0x05:
             break;
